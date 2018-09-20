@@ -46,7 +46,7 @@ object UserController : CRUDController {
 
         // Encode password
         user.passwordSalt = PasswordUtil.getSalt(PasswordUtil.DEFAULT_SALT_LENGTH)
-        user.password = PasswordUtil.securePassword(user.password, user.passwordSalt!!)
+        user.password = PasswordUtil.securePassword(user.password!!, user.passwordSalt!!)
 
         ctx.json(userDAO.createUser(user))
     }
@@ -77,6 +77,12 @@ object UserController : CRUDController {
      */
     override fun update(ctx: Context) {
         val user = ctx.body<User>()
+
+        // Encode password (if it will be updated)
+        if (user.password != null) {
+            user.passwordSalt = PasswordUtil.getSalt(PasswordUtil.DEFAULT_SALT_LENGTH)
+            user.password = PasswordUtil.securePassword(user.password!!, user.passwordSalt!!)
+        }
 
         userDAO.updateUser(user)
     }

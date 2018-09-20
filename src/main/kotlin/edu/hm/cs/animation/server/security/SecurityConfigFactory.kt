@@ -10,6 +10,7 @@ import org.pac4j.http.client.direct.HeaderClient
 import org.pac4j.javalin.DefaultHttpActionAdapter
 import org.pac4j.jwt.config.signature.SecretSignatureConfiguration
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator
+import java.time.Duration
 
 /**
  * All authorization/authentication matters are defined here.
@@ -18,7 +19,7 @@ import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator
 class SecurityConfigFactory(private val jwtSalt: String) : ConfigFactory {
 
     override fun build(vararg parameters: Any?): Config {
-        val authenticator = UserPasswordAuthenticator("admin", "admin")
+        val authenticator = UserPasswordAuthenticator("admin", "admin", 10, Duration.ofMinutes(30))
 
         // Direct basic authentication for initially retrieving JSON Web Token (Login)
         val directBasicAuthenticationClient = NoErrorDirectBasicAuthClient(authenticator)

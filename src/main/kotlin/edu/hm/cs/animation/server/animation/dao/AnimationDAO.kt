@@ -20,12 +20,12 @@ class AnimationDAO {
         return animations
     }
 
-    fun findAnimation(id: Long): Animation? {
+    fun findAnimation(id: Long): Animation {
         val em = PersistenceUtil.createEntityManager()
         val transaction = em.transaction
         transaction.begin()
 
-        val animation: Animation? = em.find(Animation::class.java, id)
+        val animation: Animation = em.find(Animation::class.java, id)
 
         transaction.commit()
 
@@ -51,14 +51,13 @@ class AnimationDAO {
     }
 
     fun updateAnimation(animation: Animation) {
-        val dbAnimation = findAnimation(animation.id!!)
-                ?: throw Exception("Animation to update could not be found in the database")
+        val em = PersistenceUtil.createEntityManager()
+        val transaction = em.transaction
+        transaction.begin()
+
+        val dbAnimation: Animation = em.find(Animation::class.java, animation.id)
 
         dbAnimation.visible = animation.visible
-
-        val em = PersistenceUtil.createEntityManager();
-        val transaction = em.transaction;
-        transaction.begin()
 
         try {
             em.merge(dbAnimation)
@@ -71,13 +70,12 @@ class AnimationDAO {
     }
 
     fun removeAnimation(id: Long) {
-        val dbAnimation = findAnimation(id) ?: throw Exception("Animation to remove could not be found in the database")
-
-        val em = PersistenceUtil.createEntityManager();
-        val transaction = em.transaction;
+        val em = PersistenceUtil.createEntityManager()
+        val transaction = em.transaction
         transaction.begin()
 
-        em.remove(dbAnimation)
+        val animation: Animation = em.find(Animation::class.java, id)
+        em.remove(animation)
 
         transaction.commit()
     }

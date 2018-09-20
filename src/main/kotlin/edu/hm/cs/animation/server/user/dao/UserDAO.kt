@@ -67,6 +67,8 @@ class UserDAO {
         val transaction = em.transaction;
         transaction.begin()
 
+        user.unsuccessfulLoginAttempts = 0;
+
         try {
             em.persist(user)
             transaction.commit()
@@ -80,14 +82,26 @@ class UserDAO {
     }
 
     fun updateUser(user: User) {
-        val dbUser = findUser(user.id!!) ?: throw Exception("User to update could not be found in the database")
+        val em = PersistenceUtil.createEntityManager()
+        val transaction = em.transaction
+        transaction.begin()
+
+        val dbUser: User = em.find(User::class.java, user.id)
 
         dbUser.name = user.name
-        dbUser.password = user.password
 
-        val em = PersistenceUtil.createEntityManager();
-        val transaction = em.transaction;
-        transaction.begin()
+        if (user.password != null) {
+            dbUser.password = user.password;
+            dbUser.passwordSalt = user.passwordSalt;
+        }
+
+        if (user.unsuccessfulLoginAttempts != null) {
+            dbUser.unsuccessfulLoginAttempts = user.unsuccessfulLoginAttempts;
+        }
+
+        if (user.lastUnsuccessfulLogin != null) {
+            dbUser.lastUnsuccessfulLogin = user.lastUnsuccessfulLogin;
+        }
 
         try {
             em.merge(dbUser)
@@ -100,13 +114,12 @@ class UserDAO {
     }
 
     fun removeUser(id: Long) {
-        val dbUser = findUser(id) ?: throw Exception("User to remove could not be found in the database")
-
-        val em = PersistenceUtil.createEntityManager();
-        val transaction = em.transaction;
+        val em = PersistenceUtil.createEntityManager()
+        val transaction = em.transaction
         transaction.begin()
 
-        em.remove(dbUser)
+        val user: User = em.find(User::class.java, id)
+        em.remove(user)
 
         transaction.commit()
     }

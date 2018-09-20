@@ -3,6 +3,8 @@ package edu.hm.cs.animation.server.user.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.sql.Timestamp
+import java.util.*
 import javax.persistence.*
 
 /**
@@ -32,7 +34,7 @@ data class User(
         @Column(nullable = false)
         @get:JsonIgnore
         @set:JsonProperty("password")
-        var password: String,
+        var password: String?,
 
         /**
          * Salt used to encode the password.
@@ -40,6 +42,20 @@ data class User(
          */
         @Column(nullable = false)
         @JsonIgnore
-        var passwordSalt: String?
+        var passwordSalt: String?,
+
+        /**
+         * How many unsuccessful login attempts in a row the user has experienced.
+         */
+        @Column(nullable = false)
+        @JsonIgnore
+        var unsuccessfulLoginAttempts: Int?,
+
+        /**
+         * When the last unsuccessful login attempt took place.
+         */
+        @Column(nullable = true)
+        @JsonIgnore
+        var lastUnsuccessfulLogin: Timestamp?
 
 )

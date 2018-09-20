@@ -31,13 +31,7 @@ object AnimationController : CRUDController {
     override fun read(ctx: Context) {
         val id = ctx.pathParam("id").toLong()
 
-        var animation = animationDAO.findAnimation(id);
-
-        if (animation == null) {
-            ctx.status(HttpStatus.NOT_FOUND_404)
-        } else {
-            ctx.json(animation)
-        }
+        ctx.json(animationDAO.findAnimation(id))
     }
 
     override fun readAll(ctx: Context) {
