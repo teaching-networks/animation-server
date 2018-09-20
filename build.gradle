@@ -1,0 +1,59 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.2.61'
+    id "org.jetbrains.kotlin.plugin.jpa" version '1.2.61'
+}
+
+group 'edu.hm.cs.animation.server'
+version '0.1'
+
+ext {
+    javaVersion = '1.8'
+    javalinVersion = '2.1.1'
+    pac4jVersion = '3.0.0'
+    hibernateVersion = '5.3.6.Final'
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'HM Animations Server',
+                'Implementation-Version': version
+    }
+}
+
+sourceCompatibility = "${javaVersion}"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Kotlin standard library
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    // Web server (with underlying embedded Jetty)
+    compile "io.javalin:javalin:${javalinVersion}"
+
+    // Jackson for JSON de-/serialization
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.4"
+
+    // Logging library
+    compile "org.slf4j:slf4j-simple:1.7.25"
+
+    // Pac4j for security
+    compile "org.pac4j:pac4j-core:${pac4jVersion}"
+    compile "org.pac4j:pac4j-http:${pac4jVersion}"
+    compile "org.pac4j:pac4j-jwt:${pac4jVersion}"
+    compile "org.pac4j:javalin-pac4j:1.0.0.RC0"
+
+    // Command line arguments parser
+    compile "com.xenomachina:kotlin-argparser:2.0.7"
+
+    // Java persistence API dependencies
+    compile "org.hibernate:hibernate-core:${hibernateVersion}"
+    compile "org.hibernate:hibernate-c3p0:${hibernateVersion}"
+    compile "org.postgresql:postgresql:42.2.5" // JDBC driver
+
+    // Testing libraries
+    testCompile group: "junit", name: "junit", version: "4.12"
+    testCompile "org.hibernate:hibernate-testing:${hibernateVersion}"
+}
