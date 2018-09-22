@@ -12,16 +12,22 @@ cache:
 
 build:
   stage: build
+  tags:
+  - www
   script:
   - ./gradlew assemble
 
 test:
   stage: test
+  tags:
+  - www
   script:
   - ./gradlew check
 
 deploy:
   stage: deploy
+  tags:
+  - www
   script:
   - ls
   only:
