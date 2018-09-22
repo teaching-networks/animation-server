@@ -36,7 +36,7 @@ object UserController : CRUDController {
      * Create a user.
      */
     override fun create(ctx: Context) {
-        val user = ctx.body<User>()
+        val user = ctx.validatedBody<User>().getOrThrow()
 
         user.id = null // For safety reasons
 
@@ -76,7 +76,7 @@ object UserController : CRUDController {
      * Update a user.
      */
     override fun update(ctx: Context) {
-        val user = ctx.body<User>()
+        val user = ctx.validatedBody<User>().getOrThrow()
 
         // Encode password (if it will be updated)
         if (user.password != null) {

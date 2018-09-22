@@ -1,6 +1,6 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.2.61'
-    id "org.jetbrains.kotlin.plugin.jpa" version '1.2.61'
+    id 'org.jetbrains.kotlin.jvm' version '1.2.70'
+    id "org.jetbrains.kotlin.plugin.jpa" version '1.2.70'
 }
 
 group 'edu.hm.cs.animation.server'
@@ -8,7 +8,7 @@ version '0.1'
 
 ext {
     javaVersion = '1.8'
-    javalinVersion = '2.1.1'
+    javalinVersion = '2.2.0'
     pac4jVersion = '3.0.0'
     hibernateVersion = '5.3.6.Final'
 }

@@ -23,7 +23,7 @@ object AnimationController : CRUDController {
     private val animationDAO = AnimationDAO()
 
     override fun create(ctx: Context) {
-        val animation = ctx.body<Animation>()
+        val animation = ctx.validatedBody<Animation>().getOrThrow()
 
         ctx.json(animationDAO.createAnimation(animation))
     }
@@ -39,7 +39,7 @@ object AnimationController : CRUDController {
     }
 
     override fun update(ctx: Context) {
-        val animation = ctx.body<Animation>()
+        val animation = ctx.validatedBody<Animation>().getOrThrow()
 
         animationDAO.updateAnimation(animation)
     }
