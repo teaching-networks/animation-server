@@ -64,7 +64,7 @@ class HMAnimationServer {
     private fun setupSslContextFactory(keystorePath: String, keystorePassword: String): SslContextFactory {
         val sslContextFactory = SslContextFactory()
 
-        sslContextFactory.keyStorePath = HMAnimationServer::class.java.getResource(keystorePath).toExternalForm()
+        sslContextFactory.keyStorePath = keystorePath
         sslContextFactory.setKeyStorePassword(keystorePassword)
 
         val pathToKeystore = Paths.get(URI.create(sslContextFactory.keyStorePath))
