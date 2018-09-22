@@ -1,7 +1,7 @@
 image: java:8-jdk
 
 before_script:
-- sudo chmod +x ./gradlew
+- chmod +x ./gradlew
 
 stages:
 - build
@@ -20,14 +20,14 @@ build:
   tags:
   - www
   script:
-  - sudo ./gradlew assemble
+  - ./gradlew assemble
 
 test:
   stage: test
   tags:
   - www
   script:
-  - sudo ./gradlew check
+  - ./gradlew check
 
 deploy:
   stage: deploy
