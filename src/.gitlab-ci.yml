@@ -1,0 +1,28 @@
+image: java:8-jdk
+
+stages:
+- build
+- test
+- deploy
+
+cache:
+  paths:
+  - .gradle/wrapper
+  - .gradle/caches
+
+build:
+  stage: build
+  script:
+  - ./gradlew assemble
+
+test:
+  stage: test
+  script:
+  - ./gradlew check
+
+deploy:
+  stage: deploy
+  script:
+  - ls
+  only:
+  - master
