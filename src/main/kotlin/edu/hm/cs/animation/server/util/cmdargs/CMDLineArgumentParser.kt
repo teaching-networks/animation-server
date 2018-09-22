@@ -16,4 +16,8 @@ class CMDLineArgumentParser(parser: ArgParser) {
 
     val corsEnabledOrigin by parser.storing("-C", "--cors-enabled-origin", help = "Origin for which CORS is enabled").default("")
 
+    val keystorePath by parser.storing("-K", "--keystore-path", help = "Path to keystore to use").default("")
+
+    val keystorePassword by parser.storing("-P", "--keystore-password", help = "Password to use for the keystore").default("")
+
 }
