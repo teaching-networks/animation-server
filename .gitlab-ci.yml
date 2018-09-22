@@ -5,14 +5,29 @@ before_script:
 
 stages:
 - build
+- test
 - deploy
+
+cache:
+  paths:
+  - build
+  - .gradle/wrapper
+  - .gradle/caches
+
 
 build:
   stage: build
   tags:
   - www
   script:
-  - sudo ./gradlew clean assemble
+  - sudo ./gradlew assemble
+
+test:
+  stage: test
+  tags:
+  - www
+  script:
+  - sudo ./gradlew check
 
 deploy:
   stage: deploy
