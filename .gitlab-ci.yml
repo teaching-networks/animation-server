@@ -15,14 +15,14 @@ build:
   tags:
   - www
   script:
-  - ./gradlew assemble
+  - sudo ./gradlew assemble
 
 test:
   stage: test
   tags:
   - www
   script:
-  - ./gradlew check
+  - sudo ./gradlew check
 
 deploy:
   stage: deploy
