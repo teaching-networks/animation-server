@@ -7,17 +7,12 @@ stages:
 - build
 - deploy
 
-cache:
-  paths:
-  - .gradle/wrapper
-  - .gradle/caches
-
 build:
   stage: build
   tags:
   - www
   script:
-  - sudo ./gradlew assemble
+  - sudo ./gradlew clean assemble
 
 deploy:
   stage: deploy
