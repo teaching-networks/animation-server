@@ -1,10 +1,23 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+    }
+}
+
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.2.70'
-    id "org.jetbrains.kotlin.plugin.jpa" version '1.2.70'
+    id 'org.jetbrains.kotlin.plugin.jpa' version '1.2.70'
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
+    id 'application'
+    id 'java'
 }
 
 group 'edu.hm.cs.animation.server'
 version '0.1'
+mainClassName = 'edu.hm.cs.animation.server.MainKt'
 
 ext {
     javaVersion = '1.8'
@@ -13,17 +26,11 @@ ext {
     hibernateVersion = '5.3.6.Final'
 }
 
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'HM Animations Server',
-                'Implementation-Version': version
-    }
-}
-
 sourceCompatibility = "${javaVersion}"
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -56,4 +63,8 @@ dependencies {
     // Testing libraries
     testCompile group: "junit", name: "junit", version: "4.12"
     testCompile "org.hibernate:hibernate-testing:${hibernateVersion}"
+}
+
+shadowJar {
+    baseName = 'animation-server'
 }

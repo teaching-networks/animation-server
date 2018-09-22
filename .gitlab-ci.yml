@@ -15,7 +15,7 @@ build:
     paths:
     - build/libs/*.jar
   script:
-  - ./gradlew assemble
+  - ./gradlew shadowJar
 
 test:
   stage: test
@@ -29,7 +29,7 @@ deploy:
   tags:
   - www
   script:
-  - ls
+  - cp -rf build/libs/animation-server-0.1-all.jar /root/server.jar
   only:
   - master
   dependencies:
