@@ -29,7 +29,7 @@ deploy:
   tags:
   - www
   script:
-  - cp -rf build/libs/animation-server-0.1-all.jar /root/server.jar
+  - sudo cp -rf build/libs/animation-server-0.1-all.jar /opt/server.jar
   only:
   - master
   dependencies:
