@@ -11,6 +11,9 @@ build:
   stage: build
   tags:
   - www
+  artifacts:
+    paths:
+    - build/libs/*.jar
   script:
   - ./gradlew assemble
 
@@ -29,3 +32,5 @@ deploy:
   - ls
   only:
   - master
+  dependencies:
+  - build
