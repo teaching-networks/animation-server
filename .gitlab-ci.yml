@@ -5,7 +5,6 @@ before_script:
 
 stages:
 - build
-- test
 - deploy
 
 cache:
@@ -19,13 +18,6 @@ build:
   - www
   script:
   - sudo ./gradlew assemble
-
-test:
-  stage: test
-  tags:
-  - www
-  script:
-  - sudo ./gradlew check
 
 deploy:
   stage: deploy
