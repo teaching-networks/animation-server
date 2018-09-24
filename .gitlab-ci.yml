@@ -29,7 +29,9 @@ deploy:
   tags:
   - www
   script:
+  - sudo systemctl stop hm-animations-server.service
   - sudo cp -rf build/libs/animation-server-0.1-all.jar /opt/server.jar
+  - sudo systemctl restart hm-animations-server.service
   only:
   - master
   dependencies:
