@@ -2,6 +2,7 @@ package edu.hm.cs.animation.server
 
 import com.xenomachina.argparser.ArgParser
 import edu.hm.cs.animation.server.animation.AnimationController
+import edu.hm.cs.animation.server.animgroup.AnimGroupController
 import edu.hm.cs.animation.server.security.AuthController
 import edu.hm.cs.animation.server.security.CORSSecurityHandler
 import edu.hm.cs.animation.server.security.SecurityConfigFactory
@@ -116,6 +117,19 @@ class HMAnimationServer {
                     ApiBuilder.path(":id") {
                         ApiBuilder.get(AnimationController::read)
                         ApiBuilder.delete(AnimationController::delete)
+                    }
+                }
+
+                // Animation group controller
+                ApiBuilder.before(AnimGroupController.PATH + "/*", CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
+                ApiBuilder.path(AnimGroupController.PATH) {
+                    ApiBuilder.post(AnimGroupController::create)
+                    ApiBuilder.get(AnimGroupController::readAll)
+                    ApiBuilder.patch(AnimGroupController::update)
+
+                    ApiBuilder.path(":id") {
+                        ApiBuilder.get(AnimGroupController::read)
+                        ApiBuilder.delete(AnimGroupController::delete)
                     }
                 }
 

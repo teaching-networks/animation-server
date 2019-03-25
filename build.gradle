@@ -1,29 +1,20 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
-    }
-}
-
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.2.70'
-    id 'org.jetbrains.kotlin.plugin.jpa' version '1.2.70'
-    id 'com.github.johnrengelman.shadow' version '2.0.4'
+    id "com.github.johnrengelman.shadow" version '4.0.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.21'
+    id 'org.jetbrains.kotlin.plugin.jpa' version '1.3.21'
     id 'application'
     id 'java'
 }
 
 group 'edu.hm.cs.animation.server'
-version '0.1'
+version '0.2.0'
 mainClassName = 'edu.hm.cs.animation.server.MainKt'
 
 ext {
     javaVersion = '1.8'
-    javalinVersion = '2.2.0'
-    pac4jVersion = '3.0.0'
-    hibernateVersion = '5.3.6.Final'
+    javalinVersion = '2.7.0'
+    pac4jVersion = '3.6.1'
+    hibernateVersion = '5.4.2.Final'
 }
 
 sourceCompatibility = "${javaVersion}"
@@ -41,7 +32,7 @@ dependencies {
     compile "io.javalin:javalin:${javalinVersion}"
 
     // Jackson for JSON de-/serialization
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.4"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
 
     // Logging library
     compile "org.slf4j:slf4j-simple:1.7.25"
