@@ -95,6 +95,7 @@ class HMAnimationServer {
                 }
 
                 // User controller
+                ApiBuilder.before(UserController.PATH, CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient")))
                 ApiBuilder.before(UserController.PATH + "/*", CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient")))
                 ApiBuilder.path(UserController.PATH) {
                     ApiBuilder.post(UserController::create)
@@ -108,6 +109,7 @@ class HMAnimationServer {
                 }
 
                 // Animation controller
+                ApiBuilder.before(AnimationController.PATH, CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
                 ApiBuilder.before(AnimationController.PATH + "/*", CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
                 ApiBuilder.path(AnimationController.PATH) {
                     ApiBuilder.post(AnimationController::create)
@@ -121,6 +123,7 @@ class HMAnimationServer {
                 }
 
                 // Animation group controller
+                ApiBuilder.before(AnimGroupController.PATH, CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
                 ApiBuilder.before(AnimGroupController.PATH + "/*", CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
                 ApiBuilder.path(AnimGroupController.PATH) {
                     ApiBuilder.post(AnimGroupController::create)
