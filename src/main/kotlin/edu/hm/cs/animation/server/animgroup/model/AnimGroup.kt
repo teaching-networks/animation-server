@@ -27,6 +27,12 @@ class AnimGroup(
          * Ids of animations in this group.
          */
         @ElementCollection
-        var animationIds: List<Long>
+        var animationIds: List<Long>,
+
+        /**
+         * Order of the animations.
+         */
+        @ElementCollection
+        var animationIdOrder: List<Long>
 
 )

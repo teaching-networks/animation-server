@@ -59,6 +59,7 @@ class AnimGroupDAO {
 
         dbAnimGroup.name = group.name
         dbAnimGroup.animationIds = group.animationIds
+        dbAnimGroup.animationIdOrder = group.animationIdOrder
 
         try {
             em.merge(dbAnimGroup)
