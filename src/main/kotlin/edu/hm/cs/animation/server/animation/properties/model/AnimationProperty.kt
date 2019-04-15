@@ -31,7 +31,7 @@ data class AnimationProperty(
         /**
          * Value of the property.
          */
-        @Column(nullable = false)
+        @Column(nullable = false, length = 10000)
         var value: String
 
 )
