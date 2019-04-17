@@ -57,7 +57,7 @@ class AnimationDAO {
 
         val dbAnimation: Animation = em.find(Animation::class.java, animation.id)
 
-        dbAnimation.visible = animation.visible
+        dbAnimation.url = animation.url
 
         try {
             em.merge(dbAnimation)
