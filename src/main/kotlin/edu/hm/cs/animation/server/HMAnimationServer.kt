@@ -81,6 +81,9 @@ class HMAnimationServer {
 
         app.routes {
             ApiBuilder.before("*") { ctx -> ctx.header(HttpConstants.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true") }
+            ApiBuilder.after {
+                it.contentType("application/json; charset=utf-8")
+            }
 
             // Authentication controller
             ApiBuilder.before(AuthController.PATH, CORSSecurityHandler(SecurityHandler(securityConfig, "NoErrorDirectBasicAuthClient"))) // Basic authentication
@@ -117,21 +120,14 @@ class HMAnimationServer {
                     ApiBuilder.get(AnimationController::readAll)
                     ApiBuilder.patch(AnimationController::update)
 
+                    // Animation properties controller
+                    ApiBuilder.path(AnimationPropertiesController.PATH) {
+                        ApiBuilder.get(AnimationPropertiesController::getProperties)
+                        ApiBuilder.post(AnimationPropertiesController::setValue)
+                    }
                     ApiBuilder.path(":id") {
                         ApiBuilder.get(AnimationController::read)
                         ApiBuilder.delete(AnimationController::delete)
-                    }
-                }
-
-                // Animation properties controller
-                ApiBuilder.before(AnimationPropertiesController.PATH, CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
-                ApiBuilder.before(AnimationPropertiesController.PATH + "/*", CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
-                ApiBuilder.path(AnimationPropertiesController.PATH) {
-                    ApiBuilder.path(":animationid") {
-                        ApiBuilder.path(":locale") {
-                            ApiBuilder.get(AnimationPropertiesController::getProperties)
-                            ApiBuilder.post(AnimationPropertiesController::setValue)
-                        }
                     }
                 }
 

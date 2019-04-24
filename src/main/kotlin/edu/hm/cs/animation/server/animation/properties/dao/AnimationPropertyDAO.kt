@@ -9,7 +9,110 @@ import edu.hm.cs.animation.server.util.PersistenceUtil
  */
 class AnimationPropertyDAO {
 
-    fun findValues(animationId: Long, locale: String): List<AnimationProperty> {
+    fun findAllValues(): List<AnimationProperty> {
+        val em = PersistenceUtil.createEntityManager()
+        val transaction = em.transaction
+        transaction.begin()
+
+        val properties: List<AnimationProperty> = em.createQuery(
+                "SELECT a FROM AnimationProperty a",
+                AnimationProperty::class.java
+        )
+                .resultList!!;
+
+        transaction.commit()
+
+        return properties
+    }
+
+    fun findValuesByLocale(locale: String): List<AnimationProperty> {
+        val em = PersistenceUtil.createEntityManager()
+        val transaction = em.transaction
+        transaction.begin()
+
+        val properties: List<AnimationProperty> = em.createQuery(
+                "SELECT a FROM AnimationProperty a WHERE a.locale = :locale",
+                AnimationProperty::class.java
+        )
+                .setParameter("locale", locale)
+                .resultList!!;
+
+        transaction.commit()
+
+        return properties
+    }
+
+    fun findValuesByKey(key: String): List<AnimationProperty> {
+        val em = PersistenceUtil.createEntityManager()
+        val transaction = em.transaction
+        transaction.begin()
+
+        val properties: List<AnimationProperty> = em.createQuery(
+                "SELECT a FROM AnimationProperty a WHERE a.key = :k",
+                AnimationProperty::class.java
+        )
+                .setParameter("k", key)
+                .resultList!!;
+
+        transaction.commit()
+
+        return properties
+    }
+
+    fun findValuesByAnimationId(animationId: Long): List<AnimationProperty> {
+        val em = PersistenceUtil.createEntityManager()
+        val transaction = em.transaction
+        transaction.begin()
+
+        val properties: List<AnimationProperty> = em.createQuery(
+                "SELECT a FROM AnimationProperty a WHERE a.animationId = :animId",
+                AnimationProperty::class.java
+        )
+                .setParameter("animId", animationId)
+                .resultList!!;
+
+        transaction.commit()
+
+        return properties
+    }
+
+    fun findValuesByAnimationIdAndKey(animationId: Long, key: String): List<AnimationProperty> {
+        val em = PersistenceUtil.createEntityManager()
+        val transaction = em.transaction
+        transaction.begin()
+
+        val properties: List<AnimationProperty> = em.createQuery(
+                "SELECT a FROM AnimationProperty a WHERE a.animationId = :animId AND a.key = :k",
+                AnimationProperty::class.java
+        )
+                .setParameter("animId", animationId)
+                .setParameter("k", key)
+                .resultList!!;
+
+        transaction.commit()
+
+        return properties
+    }
+
+    fun findValuesByKeyAndLocale(locale: String, key: String): List<AnimationProperty> {
+        val em = PersistenceUtil.createEntityManager()
+        val transaction = em.transaction
+        transaction.begin()
+
+        val properties: List<AnimationProperty> = em.createQuery(
+                "SELECT a FROM AnimationProperty a WHERE a.locale = :locale AND a.key = :k",
+                AnimationProperty::class.java
+        )
+                .setParameter("locale", locale)
+                .setParameter("k", key)
+                .resultList!!;
+
+        transaction.commit()
+
+        return properties
+    }
+
+    fun findValuesByAnimationIdAndLocale(animationId: Long, locale: String): List<AnimationProperty> {
         val em = PersistenceUtil.createEntityManager()
         val transaction = em.transaction
         transaction.begin()

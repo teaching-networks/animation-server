@@ -12,7 +12,7 @@ object AnimationPropertiesController {
     /**
      * Path the controller is reachable under.
      */
-    const val PATH = "animation/property"
+    const val PATH = "property"
 
     /**
      * DAO to get properties from.
@@ -20,32 +20,42 @@ object AnimationPropertiesController {
     private val propertyDAO = AnimationPropertyDAO()
 
     fun getProperties(ctx: Context) {
-        val animationId = ctx.pathParam("animationid").toLong()
-        val locale = ctx.pathParam("locale")
-
+        val animationId = ctx.queryParam("animationid")
+        val locale = ctx.queryParam("locale")
         val key = ctx.queryParam("key")
 
-        if (key == null) {
-            ctx.json(propertyDAO.findValues(animationId, locale))
-        } else {
-            val result = propertyDAO.findValue(animationId, locale, key)
+        if (locale != null && animationId != null && key != null) {
+            val result = propertyDAO.findValue(animationId.toLong(), locale, key)
             if (result == null) {
                 ctx.status(HttpStatus.NOT_FOUND_404)
             } else {
                 ctx.json(result)
             }
+        } else if (locale != null && animationId != null) {
+            ctx.json(propertyDAO.findValuesByAnimationIdAndLocale(animationId.toLong(), locale))
+        } else if (locale != null && key != null) {
+            ctx.json(propertyDAO.findValuesByKeyAndLocale(locale, key))
+        } else if (animationId != null && key != null) {
+            ctx.json(propertyDAO.findValuesByAnimationIdAndKey(animationId.toLong(), key))
+        } else if (locale != null) {
+            ctx.json(propertyDAO.findValuesByLocale(locale))
+        } else if (animationId != null) {
+            ctx.json(propertyDAO.findValuesByAnimationId(animationId.toLong()))
+        } else if (key != null) {
+            ctx.json(propertyDAO.findValuesByKey(key))
+        } else {
+            ctx.json(propertyDAO.findAllValues())
         }
     }
 
     fun setValue(ctx: Context) {
-        val animationId = ctx.pathParam("animationid").toLong()
-        val locale = ctx.pathParam("locale")
-
+        val animationId = ctx.queryParam("animationid")!!
+        val locale = ctx.queryParam("locale")!!
         val key = ctx.queryParam("key")!!
 
         val value = ctx.body()
 
-        propertyDAO.setValue(animationId, locale, key, value)
+        propertyDAO.setValue(animationId.toLong(), locale, key, value)
 
         ctx.status(HttpStatus.OK_200)
     }
