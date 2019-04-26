@@ -58,4 +58,6 @@ dependencies {
 
 shadowJar {
     baseName = 'animation-server'
+    classifier = null
+    version = null
 }
