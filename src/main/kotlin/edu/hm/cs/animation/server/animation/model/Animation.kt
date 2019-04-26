@@ -23,7 +23,7 @@ data class Animation(
          * e. g. localhost:8080/#/animation/my-animation
          * where the url part is "my-animation".
          */
-        @Column(nullable = false, length = 100)
+        @Column(length = 100)
         var url: String
 
 )
