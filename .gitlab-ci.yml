@@ -15,7 +15,7 @@ build:
     paths:
     - build/libs/*.jar
   script:
-  - ./gradlew shadowJar
+  - ./gradlew shadowJar --refresh-dependencies
 
 test:
   stage: test
