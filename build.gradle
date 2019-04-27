@@ -12,7 +12,7 @@ mainClassName = 'edu.hm.cs.animation.server.MainKt'
 
 ext {
     javaVersion = '1.8'
-    javalinVersion = '2.7.0'
+    javalinVersion = '2.8.0'
     pac4jVersion = '3.6.1'
     hibernateVersion = '5.4.2.Final'
 }
