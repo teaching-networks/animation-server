@@ -1,5 +1,7 @@
 package edu.hm.cs.animation.server.animgroup.model
 
+import org.hibernate.annotations.LazyCollection
+import org.hibernate.annotations.LazyCollectionOption
 import javax.persistence.*
 
 /**
@@ -26,13 +28,15 @@ class AnimGroup(
         /**
          * Ids of animations in this group.
          */
-        @ElementCollection
+        @ElementCollection()
+        @LazyCollection(LazyCollectionOption.FALSE)
         var animationIds: List<Long>,
 
         /**
          * Order of the animations.
          */
-        @ElementCollection
+        @ElementCollection()
+        @LazyCollection(LazyCollectionOption.FALSE)
         var animationIdOrder: List<Long>
 
 )

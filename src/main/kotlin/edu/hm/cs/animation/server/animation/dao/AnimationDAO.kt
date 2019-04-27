@@ -9,75 +9,39 @@ import edu.hm.cs.animation.server.util.PersistenceUtil
 class AnimationDAO {
 
     fun findAllAnimations(): List<Animation> {
-        val em = PersistenceUtil.createEntityManager();
-        val transaction = em.transaction;
-        transaction.begin()
-
-        val animations: List<Animation> = em.createQuery("SELECT a FROM Animation a", Animation::class.java).resultList!!
-
-        transaction.commit()
-
-        return animations
+        return PersistenceUtil.transaction {
+            return@transaction it.createQuery("SELECT a FROM Animation a", Animation::class.java).resultList!!
+        }
     }
 
     fun findAnimation(id: Long): Animation {
-        val em = PersistenceUtil.createEntityManager()
-        val transaction = em.transaction
-        transaction.begin()
-
-        val animation: Animation = em.find(Animation::class.java, id)
-
-        transaction.commit()
-
-        return animation
+        return PersistenceUtil.transaction {
+            return@transaction it.find(Animation::class.java, id)
+        }
     }
 
     fun createAnimation(animation: Animation): Animation {
-        val em = PersistenceUtil.createEntityManager();
-        val transaction = em.transaction;
-        transaction.begin()
+        return PersistenceUtil.transaction {
+            it.persist(animation)
 
-        try {
-            em.persist(animation)
-
-            transaction.commit()
-        } catch (e: Exception) {
-            transaction.rollback()
-
-            throw e // Rethrow exception
+            return@transaction animation
         }
-
-        return animation;
     }
 
     fun updateAnimation(animation: Animation) {
-        val em = PersistenceUtil.createEntityManager()
-        val transaction = em.transaction
-        transaction.begin()
+        PersistenceUtil.transaction {
+            val dbAnimation: Animation = it.find(Animation::class.java, animation.id)
+            dbAnimation.url = animation.url
 
-        val dbAnimation: Animation = em.find(Animation::class.java, animation.id)
-
-        dbAnimation.url = animation.url
-
-        try {
-            em.merge(dbAnimation)
-            transaction.commit()
-        } catch (e: Exception) {
-            transaction.rollback()
-
-            throw e // Rethrow exception
+            it.merge(dbAnimation)
         }
     }
 
     fun removeAnimation(id: Long) {
-        val em = PersistenceUtil.createEntityManager()
-        val transaction = em.transaction
-        transaction.begin()
-
-        val animation: Animation = em.find(Animation::class.java, id)
-        em.remove(animation)
-
-        transaction.commit()
+        PersistenceUtil.transaction {
+            val animation: Animation = it.find(Animation::class.java, id)
+            it.remove(animation)
+        }
     }
 
 }

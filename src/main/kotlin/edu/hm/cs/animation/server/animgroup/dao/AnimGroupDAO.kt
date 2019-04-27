@@ -9,77 +9,43 @@ import edu.hm.cs.animation.server.util.PersistenceUtil
 class AnimGroupDAO {
 
     fun create(animGroup: AnimGroup): AnimGroup {
-        val em = PersistenceUtil.createEntityManager();
-        val transaction = em.transaction;
-        transaction.begin()
+        return PersistenceUtil.transaction {
+            it.persist(animGroup)
 
-        try {
-            em.persist(animGroup)
-
-            transaction.commit()
-        } catch (e: Exception) {
-            transaction.rollback()
-
-            throw e // Rethrow exception
+            return@transaction animGroup
         }
-
-        return animGroup;
     }
 
     fun find(id: Long): AnimGroup {
-        val em = PersistenceUtil.createEntityManager()
-        val transaction = em.transaction
-        transaction.begin()
-
-        val group: AnimGroup = em.find(AnimGroup::class.java, id)
-
-        transaction.commit()
-
-        return group
+        return PersistenceUtil.transaction {
+            return@transaction it.find(AnimGroup::class.java, id)
+        }
     }
 
     fun findAll(): List<AnimGroup> {
-        val em = PersistenceUtil.createEntityManager()
-        val transaction = em.transaction
-        transaction.begin()
-
-        val groups: List<AnimGroup> = em.createQuery("SELECT a FROM AnimGroup a", AnimGroup::class.java).resultList!!
-
-        transaction.commit()
-
-        return groups
+        return PersistenceUtil.transaction {
+            return@transaction it.createQuery("SELECT a FROM AnimGroup a", AnimGroup::class.java).resultList!!
+        }
     }
 
     fun update(group: AnimGroup) {
-        val em = PersistenceUtil.createEntityManager()
-        val transaction = em.transaction
-        transaction.begin()
+        PersistenceUtil.transaction {
+            val dbAnimGroup: AnimGroup = it.find(AnimGroup::class.java, group.id)
 
-        val dbAnimGroup: AnimGroup = em.find(AnimGroup::class.java, group.id)
+            dbAnimGroup.name = group.name
+            dbAnimGroup.animationIds = group.animationIds
+            dbAnimGroup.animationIdOrder = group.animationIdOrder
 
-        dbAnimGroup.name = group.name
-        dbAnimGroup.animationIds = group.animationIds
-        dbAnimGroup.animationIdOrder = group.animationIdOrder
-
-        try {
-            em.merge(dbAnimGroup)
-            transaction.commit()
-        } catch (e: Exception) {
-            transaction.rollback()
-
-            throw e // Rethrow exception
+            it.merge(dbAnimGroup)
         }
     }
 
     fun remove(id: Long) {
-        val em = PersistenceUtil.createEntityManager()
-        val transaction = em.transaction
-        transaction.begin()
+        PersistenceUtil.transaction {
+            val group: AnimGroup = it.find(AnimGroup::class.java, id)
 
-        val group: AnimGroup = em.find(AnimGroup::class.java, id)
-        em.remove(group)
-
-        transaction.commit()
+            it.remove(group)
+        }
     }
 
 }

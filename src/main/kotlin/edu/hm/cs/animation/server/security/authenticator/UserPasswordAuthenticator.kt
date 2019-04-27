@@ -31,7 +31,12 @@ class UserPasswordAuthenticator(private val defaultUsername: String, private val
                 throw CredentialsException("Invalid credentials")
             }
         } else {
-            val user = userDAO.findUserByName(credentials.username) ?: throw CredentialsException("Invalid credentials")
+            val user: User
+            try {
+                user = userDAO.findUserByName(credentials.username)
+            } catch (e: Exception) {
+                throw CredentialsException("Invalid credentials")
+            }
 
             try {
                 if (user.unsuccessfulLoginAttempts!! >= maxLoginAttempts) {

@@ -57,7 +57,9 @@ class HMAnimationServer {
                 } else if (debug) {
                     enableCorsForAllOrigins()
                 }
-            }.start()
+            }
+
+            app.start()
 
             setupRoutes(app, jwtSalt)
         }

@@ -21,7 +21,7 @@ object AnimGroupController : CRUDController {
     private val animGroupDAO = AnimGroupDAO()
 
     override fun create(ctx: Context) {
-        val group = ctx.validatedBody<AnimGroup>().getOrThrow()
+        val group = ctx.bodyValidator<AnimGroup>().get()
 
         ctx.json(animGroupDAO.create(group))
     }
@@ -37,7 +37,7 @@ object AnimGroupController : CRUDController {
     }
 
     override fun update(ctx: Context) {
-        val group = ctx.validatedBody<AnimGroup>().getOrThrow()
+        val group = ctx.bodyValidator<AnimGroup>().get()
 
         animGroupDAO.update(group)
     }
