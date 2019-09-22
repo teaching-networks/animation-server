@@ -21,7 +21,7 @@ data class Animation(
          * Id of the animation.
          */
         @Id
-        var id: Long,
+        var id: Long? = null,
 
         /**
          * The url part under which the animation is accessible.
@@ -29,6 +29,24 @@ data class Animation(
          * where the url part is "my-animation".
          */
         @Column(length = 100)
-        var url: String
+        var url: String? = null
 
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Animation
+
+        if (id != other.id) return false
+        if (url != other.url) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id?.hashCode() ?: 0
+        result = 31 * result + (url?.hashCode() ?: 0)
+        return result
+    }
+}

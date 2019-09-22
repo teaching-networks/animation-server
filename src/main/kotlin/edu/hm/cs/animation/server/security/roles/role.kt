@@ -3,6 +3,11 @@
  * Licensed under GNU General Public License 3 (See LICENSE.md in the repositories root)
  */
 
-package edu.hm.cs.animation.server.security.authenticator.exception
+package edu.hm.cs.animation.server.security.roles
 
-class UserLockedException() : Exception()
+import io.javalin.core.security.Role
+
+enum class Roles : Role {
+    ADMINISTRATOR,
+    ANYONE
+}

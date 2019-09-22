@@ -13,7 +13,7 @@ object PersistenceUtil {
 
     private val entityManagerFactory: EntityManagerFactory = Persistence.createEntityManagerFactory("default")
 
-    fun createEntityManager() = entityManagerFactory.createEntityManager()!!
+    private fun createEntityManager() = entityManagerFactory.createEntityManager()!!
 
     fun destroyEntityManagerFactory() {
         entityManagerFactory.close()

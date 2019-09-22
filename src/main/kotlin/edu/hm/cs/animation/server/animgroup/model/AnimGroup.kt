@@ -22,26 +22,26 @@ class AnimGroup(
          */
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
-        var id: Long,
+        var id: Long? = null,
 
         /**
          * Name of the animation group.
          */
         @Column(nullable = false)
-        var name: String,
+        var name: String = "",
 
         /**
          * Ids of animations in this group.
          */
-        @ElementCollection()
+        @ElementCollection
         @LazyCollection(LazyCollectionOption.FALSE)
-        var animationIds: List<Long>,
+        var animationIds: List<Long>? = null,
 
         /**
          * Order of the animations.
          */
-        @ElementCollection()
+        @ElementCollection
         @LazyCollection(LazyCollectionOption.FALSE)
-        var animationIdOrder: List<Long>
+        var animationIdOrder: List<Long>? = null
 
 )

@@ -8,7 +8,7 @@ package edu.hm.cs.animation.server.animgroup
 import edu.hm.cs.animation.server.animgroup.dao.AnimGroupDAO
 import edu.hm.cs.animation.server.animgroup.model.AnimGroup
 import edu.hm.cs.animation.server.util.rest.CRUDController
-import io.javalin.Context
+import io.javalin.http.Context
 
 /**
  * CRUD Controller for animation groups.

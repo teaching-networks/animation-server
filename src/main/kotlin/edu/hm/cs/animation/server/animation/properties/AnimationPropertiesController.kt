@@ -6,7 +6,7 @@
 package edu.hm.cs.animation.server.animation.properties
 
 import edu.hm.cs.animation.server.animation.properties.dao.AnimationPropertyDAO
-import io.javalin.Context
+import io.javalin.http.Context
 import org.eclipse.jetty.http.HttpStatus
 
 /**

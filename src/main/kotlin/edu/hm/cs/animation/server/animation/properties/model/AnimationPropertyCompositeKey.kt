@@ -25,6 +25,26 @@ data class AnimationPropertyCompositeKey(
         /**
          * The key of the property.
          */
-        var key: String? = ""
+        var key: String = ""
 
-) : Serializable
+) : Serializable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AnimationPropertyCompositeKey
+
+        if (animationId != other.animationId) return false
+        if (locale != other.locale) return false
+        if (key != other.key) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = animationId.hashCode()
+        result = 31 * result + locale.hashCode()
+        result = 31 * result + (key.hashCode() ?: 0)
+        return result
+    }
+}

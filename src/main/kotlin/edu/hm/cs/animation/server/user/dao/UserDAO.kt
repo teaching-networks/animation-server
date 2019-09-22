@@ -54,16 +54,16 @@ class UserDAO {
             dbUser.name = user.name
 
             if (user.password != null) {
-                dbUser.password = user.password;
-                dbUser.passwordSalt = user.passwordSalt;
+                dbUser.password = user.password
+                dbUser.passwordSalt = user.passwordSalt
             }
 
             if (user.unsuccessfulLoginAttempts != null) {
-                dbUser.unsuccessfulLoginAttempts = user.unsuccessfulLoginAttempts;
+                dbUser.unsuccessfulLoginAttempts = user.unsuccessfulLoginAttempts
             }
 
             if (user.lastUnsuccessfulLogin != null) {
-                dbUser.lastUnsuccessfulLogin = user.lastUnsuccessfulLogin;
+                dbUser.lastUnsuccessfulLogin = user.lastUnsuccessfulLogin
             }
 
             it.merge(dbUser)

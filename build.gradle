@@ -4,22 +4,24 @@
  */
 
 plugins {
-    id "com.github.johnrengelman.shadow" version '4.0.0'
-    id 'org.jetbrains.kotlin.jvm' version '1.3.21'
-    id 'org.jetbrains.kotlin.plugin.jpa' version '1.3.21'
+    id "com.github.johnrengelman.shadow" version '5.1.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.50'
+    id 'org.jetbrains.kotlin.plugin.jpa' version '1.3.50'
+    id 'com.github.ben-manes.versions' version '0.25.0'
     id 'application'
     id 'java'
 }
 
 group 'edu.hm.cs.animation.server'
-version '2.0.0'
+version '2.1.0'
 mainClassName = 'edu.hm.cs.animation.server.MainKt'
 
 ext {
-    javaVersion = '1.8'
-    javalinVersion = '2.8.0'
-    pac4jVersion = '3.6.1'
-    hibernateVersion = '5.4.2.Final'
+    javaVersion = '1.13'
+    javalinVersion = '3.5.0'
+    pac4jVersion = '4.0.0-RC1'
+    hibernateVersion = '5.4.5.Final'
+    junitVersion = '5.5.2'
 }
 
 sourceCompatibility = "${javaVersion}"
@@ -27,42 +29,41 @@ sourceCompatibility = "${javaVersion}"
 repositories {
     mavenCentral()
     jcenter()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     // Kotlin standard library
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     // Web server (with underlying embedded Jetty)
-    compile "io.javalin:javalin:${javalinVersion}"
+    implementation "io.javalin:javalin:${javalinVersion}"
+
+    // Javalin JWT security extension
+    implementation "com.github.kmehrunes:javalin-jwt:0.2"
 
     // Jackson for JSON de-/serialization
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.0.pr3"
 
     // Logging library
-    compile "org.slf4j:slf4j-simple:1.7.25"
-
-    // Pac4j for security
-    compile "org.pac4j:pac4j-core:${pac4jVersion}"
-    compile "org.pac4j:pac4j-http:${pac4jVersion}"
-    compile "org.pac4j:pac4j-jwt:${pac4jVersion}"
-    compile "org.pac4j:javalin-pac4j:1.0.0.RC0"
+    implementation "org.slf4j:slf4j-simple:1.7.26"
 
     // Command line arguments parser
-    compile "com.xenomachina:kotlin-argparser:2.0.7"
+    implementation "com.xenomachina:kotlin-argparser:2.0.7"
 
     // Java persistence API dependencies
-    compile "org.hibernate:hibernate-core:${hibernateVersion}"
-    compile "org.hibernate:hibernate-c3p0:${hibernateVersion}"
-    compile "org.postgresql:postgresql:42.2.5" // JDBC driver
+    implementation "org.hibernate:hibernate-core:${hibernateVersion}"
+    implementation "org.hibernate:hibernate-c3p0:${hibernateVersion}"
+    implementation "org.postgresql:postgresql:42.2.8" // JDBC driver
 
     // Testing libraries
-    testCompile group: "junit", name: "junit", version: "4.12"
-    testCompile "org.hibernate:hibernate-testing:${hibernateVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation "org.hibernate:hibernate-testing:${hibernateVersion}"
 }
 
 shadowJar {
-    baseName = 'animation-server'
-    classifier = null
-    version = null
+    archiveBaseName.set('animation-server')
+    archiveClassifier.set(null)
+    archiveVersion.set(null)
 }

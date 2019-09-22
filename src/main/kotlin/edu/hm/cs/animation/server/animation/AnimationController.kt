@@ -8,9 +8,7 @@ package edu.hm.cs.animation.server.animation
 import edu.hm.cs.animation.server.animation.dao.AnimationDAO
 import edu.hm.cs.animation.server.animation.model.Animation
 import edu.hm.cs.animation.server.util.rest.CRUDController
-import io.javalin.Context
-import org.eclipse.jetty.http.HttpStatus
-import org.eclipse.jetty.websocket.api.StatusCode
+import io.javalin.http.Context
 
 /**
  * REST Controller handling animation matters.
@@ -28,7 +26,7 @@ object AnimationController : CRUDController {
     private val animationDAO = AnimationDAO()
 
     override fun create(ctx: Context) {
-        val animation = ctx.validatedBody<Animation>().getOrThrow()
+        val animation = ctx.bodyValidator<Animation>().get()
 
         ctx.json(animationDAO.createAnimation(animation))
     }
@@ -44,7 +42,7 @@ object AnimationController : CRUDController {
     }
 
     override fun update(ctx: Context) {
-        val animation = ctx.validatedBody<Animation>().getOrThrow()
+        val animation = ctx.bodyValidator<Animation>().get()
 
         animationDAO.updateAnimation(animation)
     }

@@ -18,9 +18,9 @@ object PasswordUtil {
     const val DEFAULT_SALT_LENGTH = 32
 
     private val RAND = SecureRandom()
-    private val SALT_CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-    private val ITERATIONS = 10000
-    private val KEY_LENGTH = 256
+    private const val SALT_CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    private const val ITERATIONS = 10000
+    private const val KEY_LENGTH = 256
 
     /**
      * Get a random salt.
@@ -81,7 +81,7 @@ object PasswordUtil {
     fun verifyPassword(password: String, hashedPassword: String, salt: String): Boolean {
         val newHashedPassword = securePassword(password, salt)
 
-        return newHashedPassword.equals(hashedPassword);
+        return newHashedPassword == hashedPassword
     }
 
 }

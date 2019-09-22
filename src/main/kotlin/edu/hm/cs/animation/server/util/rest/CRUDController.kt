@@ -5,7 +5,7 @@
 
 package edu.hm.cs.animation.server.util.rest
 
-import io.javalin.Context
+import io.javalin.http.Context
 
 /**
  * Base interface for CRUD REST Controllers.

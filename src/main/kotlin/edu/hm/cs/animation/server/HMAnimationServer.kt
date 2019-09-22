@@ -5,25 +5,30 @@
 
 package edu.hm.cs.animation.server
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import com.xenomachina.argparser.ArgParser
 import edu.hm.cs.animation.server.animation.AnimationController
 import edu.hm.cs.animation.server.animation.properties.AnimationPropertiesController
 import edu.hm.cs.animation.server.animgroup.AnimGroupController
 import edu.hm.cs.animation.server.security.AuthController
-import edu.hm.cs.animation.server.security.CORSSecurityHandler
-import edu.hm.cs.animation.server.security.SecurityConfigFactory
+import edu.hm.cs.animation.server.security.roles.Roles
 import edu.hm.cs.animation.server.user.UserController
+import edu.hm.cs.animation.server.user.model.User
 import edu.hm.cs.animation.server.util.cmdargs.CMDLineArgumentParser
 import edu.hm.cs.animation.server.util.file.FileWatcher
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder
-import org.eclipse.jetty.http.HttpMethod
+import io.javalin.core.security.Role
+import io.javalin.core.security.SecurityUtil.roles
+import javalinjwt.JWTAccessManager
+import javalinjwt.JWTGenerator
+import javalinjwt.JWTProvider
+import javalinjwt.JavalinJWT
 import org.eclipse.jetty.server.Connector
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.util.ssl.SslContextFactory
-import org.pac4j.core.context.HttpConstants
-import org.pac4j.javalin.SecurityHandler
 import java.net.URI
 import java.nio.file.Paths
 
@@ -31,10 +36,9 @@ class HMAnimationServer {
 
     fun start(args: Array<String>) {
         ArgParser(args).parseInto(::CMDLineArgumentParser).run {
-            // Create the Javalin server
-            val app = Javalin.create().apply {
-                server {
-                    // Create custom Jetty server
+            // Create and configure Javalin.
+            val app = Javalin.create { config ->
+                config.server {
                     val server = Server()
 
                     if (keystorePath.isNotEmpty()) {
@@ -54,101 +58,115 @@ class HMAnimationServer {
                 }
 
                 if (debug) {
-                    enableDebugLogging()
+                    config.enableDevLogging()
                 }
 
                 if (corsEnabledOrigin.isNotEmpty()) {
-                    enableCorsForOrigin(corsEnabledOrigin)
+                    config.enableCorsForOrigin(corsEnabledOrigin)
                 } else if (debug) {
-                    enableCorsForAllOrigins()
+                    config.enableCorsForAllOrigins()
                 }
+
+                // Setup access manager to handle JSON Web Token authentication
+                val roleMapping = hashMapOf<String, Role>()
+                roleMapping.put(Roles.ADMINISTRATOR.name, Roles.ADMINISTRATOR)
+                roleMapping.put(Roles.ANYONE.name, Roles.ANYONE)
+                config.accessManager(JWTAccessManager("role", roleMapping, Roles.ANYONE))
             }
 
-            app.start()
-
-            setupRoutes(app, jwtSalt)
+            setupRoutes(app.start(), setupJWTProvider(jwtSalt))
         }
     }
 
     private fun setupSslContextFactory(keystorePath: String, keystorePassword: String): SslContextFactory {
-        val sslContextFactory = SslContextFactory()
+        val sslContextFactory = SslContextFactory.Server()
 
         sslContextFactory.keyStorePath = keystorePath
         sslContextFactory.setKeyStorePassword(keystorePassword)
 
         val pathToKeystore = Paths.get(URI.create(sslContextFactory.keyStorePath))
-        FileWatcher.onFileChange(pathToKeystore, Runnable { sslContextFactory.reload { _ -> println("Certificates reloaded") } })
+        FileWatcher.onFileChange(pathToKeystore, Runnable { sslContextFactory.reload { println("Certificates reloaded") } })
 
         return sslContextFactory
     }
 
-    private fun setupRoutes(app: Javalin, jwtSalt: String) {
-        // Set up security configuration of pac4j
-        val securityConfig = SecurityConfigFactory(jwtSalt).build()
+    private fun setupJWTProvider(salt: String): JWTProvider {
+        val algorithm = Algorithm.HMAC256(salt)
+
+        val generator = JWTGenerator { user: User, alg: Algorithm ->
+            val token = JWT.create()
+                    .withClaim("id", user.id)
+                    .withClaim("name", user.name)
+                    .withClaim("role", user.role.name)
+
+            token.sign(alg)
+        }
+
+        val verifier = JWT.require(algorithm).build()
+
+        return JWTProvider(algorithm, generator, verifier)
+    }
+
+    private fun setupRoutes(app: Javalin, jwtProvider: JWTProvider) {
+        val decodeHandler = JavalinJWT.createHeaderDecodeHandler(jwtProvider)
+        app.before(decodeHandler)
 
         app.routes {
-            ApiBuilder.before("*") { ctx -> ctx.header(HttpConstants.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true") }
+            ApiBuilder.before("*") { ctx -> ctx.header("Access-Control-Allow-Credentials", "true") }
             ApiBuilder.after {
                 it.contentType("application/json; charset=utf-8")
             }
 
             // Authentication controller
-            ApiBuilder.before(AuthController.PATH, CORSSecurityHandler(SecurityHandler(securityConfig, "NoErrorDirectBasicAuthClient"))) // Basic authentication
             ApiBuilder.path(AuthController.PATH) {
-                ApiBuilder.get { ctx -> AuthController.generateJWT(ctx, jwtSalt) }
+                ApiBuilder.get({ ctx -> AuthController.authenticate(ctx, jwtProvider) }, roles(Roles.ANYONE))
             }
 
             ApiBuilder.path("api") {
 
                 // API test
                 ApiBuilder.path("hello") {
-                    ApiBuilder.get { ctx -> ctx.result("Hello World") }
+                    ApiBuilder.get({ ctx -> ctx.result("Hello World") }, roles(Roles.ADMINISTRATOR))
                 }
 
                 // User controller
-                ApiBuilder.before(UserController.PATH, CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient")))
-                ApiBuilder.before(UserController.PATH + "/*", CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient")))
                 ApiBuilder.path(UserController.PATH) {
-                    ApiBuilder.post(UserController::create)
-                    ApiBuilder.get(UserController::readAll)
-                    ApiBuilder.patch(UserController::update)
+                    ApiBuilder.post(UserController::create, roles(Roles.ADMINISTRATOR))
+                    ApiBuilder.get(UserController::readAll, roles(Roles.ADMINISTRATOR))
+                    ApiBuilder.patch(UserController::update, roles(Roles.ADMINISTRATOR))
 
                     ApiBuilder.path(":id") {
-                        ApiBuilder.get(UserController::read)
-                        ApiBuilder.delete(UserController::delete)
+                        ApiBuilder.get(UserController::read, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.delete(UserController::delete, roles(Roles.ADMINISTRATOR))
                     }
                 }
 
                 // Animation controller
-                ApiBuilder.before(AnimationController.PATH, CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
-                ApiBuilder.before(AnimationController.PATH + "/*", CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
                 ApiBuilder.path(AnimationController.PATH) {
-                    ApiBuilder.post(AnimationController::create)
-                    ApiBuilder.get(AnimationController::readAll)
-                    ApiBuilder.patch(AnimationController::update)
+                    ApiBuilder.post(AnimationController::create, roles(Roles.ADMINISTRATOR))
+                    ApiBuilder.get(AnimationController::readAll, roles(Roles.ANYONE))
+                    ApiBuilder.patch(AnimationController::update, roles(Roles.ADMINISTRATOR))
 
                     // Animation properties controller
                     ApiBuilder.path(AnimationPropertiesController.PATH) {
-                        ApiBuilder.get(AnimationPropertiesController::getProperties)
-                        ApiBuilder.post(AnimationPropertiesController::setValue)
+                        ApiBuilder.get(AnimationPropertiesController::getProperties, roles(Roles.ANYONE))
+                        ApiBuilder.post(AnimationPropertiesController::setValue, roles(Roles.ADMINISTRATOR))
                     }
                     ApiBuilder.path(":id") {
-                        ApiBuilder.get(AnimationController::read)
-                        ApiBuilder.delete(AnimationController::delete)
+                        ApiBuilder.get(AnimationController::read, roles(Roles.ANYONE))
+                        ApiBuilder.delete(AnimationController::delete, roles(Roles.ADMINISTRATOR))
                     }
                 }
 
                 // Animation group controller
-                ApiBuilder.before(AnimGroupController.PATH, CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
-                ApiBuilder.before(AnimGroupController.PATH + "/*", CORSSecurityHandler(SecurityHandler(securityConfig, "HeaderClient"), HttpMethod.GET))
                 ApiBuilder.path(AnimGroupController.PATH) {
-                    ApiBuilder.post(AnimGroupController::create)
-                    ApiBuilder.get(AnimGroupController::readAll)
-                    ApiBuilder.patch(AnimGroupController::update)
+                    ApiBuilder.post(AnimGroupController::create, roles(Roles.ADMINISTRATOR))
+                    ApiBuilder.get(AnimGroupController::readAll, roles(Roles.ANYONE))
+                    ApiBuilder.patch(AnimGroupController::update, roles(Roles.ADMINISTRATOR))
 
                     ApiBuilder.path(":id") {
-                        ApiBuilder.get(AnimGroupController::read)
-                        ApiBuilder.delete(AnimGroupController::delete)
+                        ApiBuilder.get(AnimGroupController::read, roles(Roles.ANYONE))
+                        ApiBuilder.delete(AnimGroupController::delete, roles(Roles.ADMINISTRATOR))
                     }
                 }
 
