@@ -144,16 +144,16 @@ class HMAnimationServer {
                 // Animation controller
                 ApiBuilder.path(AnimationController.PATH) {
                     ApiBuilder.post(AnimationController::create, roles(Roles.ADMINISTRATOR))
-                    ApiBuilder.get(AnimationController::readAll, roles(Roles.ANYONE))
+                    ApiBuilder.get(AnimationController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                     ApiBuilder.patch(AnimationController::update, roles(Roles.ADMINISTRATOR))
 
                     // Animation properties controller
                     ApiBuilder.path(AnimationPropertiesController.PATH) {
-                        ApiBuilder.get(AnimationPropertiesController::getProperties, roles(Roles.ANYONE))
+                        ApiBuilder.get(AnimationPropertiesController::getProperties, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         ApiBuilder.post(AnimationPropertiesController::setValue, roles(Roles.ADMINISTRATOR))
                     }
                     ApiBuilder.path(":id") {
-                        ApiBuilder.get(AnimationController::read, roles(Roles.ANYONE))
+                        ApiBuilder.get(AnimationController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         ApiBuilder.delete(AnimationController::delete, roles(Roles.ADMINISTRATOR))
                     }
                 }
@@ -161,11 +161,11 @@ class HMAnimationServer {
                 // Animation group controller
                 ApiBuilder.path(AnimGroupController.PATH) {
                     ApiBuilder.post(AnimGroupController::create, roles(Roles.ADMINISTRATOR))
-                    ApiBuilder.get(AnimGroupController::readAll, roles(Roles.ANYONE))
+                    ApiBuilder.get(AnimGroupController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                     ApiBuilder.patch(AnimGroupController::update, roles(Roles.ADMINISTRATOR))
 
                     ApiBuilder.path(":id") {
-                        ApiBuilder.get(AnimGroupController::read, roles(Roles.ANYONE))
+                        ApiBuilder.get(AnimGroupController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         ApiBuilder.delete(AnimGroupController::delete, roles(Roles.ADMINISTRATOR))
                     }
                 }
