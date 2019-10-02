@@ -15,14 +15,14 @@ build:
     paths:
     - build/libs/*.jar
   script:
-  - ./gradlew shadowJar --refresh-dependencies
+  - ./gradlew -Dorg.gradle.java.home=/opt/jdk-12 shadowJar --refresh-dependencies
 
 test:
   stage: test
   tags:
   - www
   script:
-  - ./gradlew check
+  - ./gradlew -Dorg.gradle.java.home=/opt/jdk-12 check
 
 deploy:
   stage: deploy
