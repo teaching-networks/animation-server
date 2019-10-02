@@ -63,7 +63,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveBaseName.set('animation-server')
-    archiveClassifier.set(null)
-    archiveVersion.set(null)
+    baseName = 'animation-server'
+    classifier = null
+    version = null
 }
