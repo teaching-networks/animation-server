@@ -5,6 +5,7 @@
 
 package edu.hm.cs.animation.server.security
 
+import edu.hm.cs.animation.server.security.roles.Roles
 import edu.hm.cs.animation.server.security.util.PasswordUtil
 import edu.hm.cs.animation.server.user.dao.UserDAO
 import edu.hm.cs.animation.server.user.model.User
@@ -42,7 +43,7 @@ object AuthController {
             val userCount = userDAO.getUserCount()
             if (userCount == 0L) {
                 if (credentials.username == DEFAULT_USERNAME && credentials.password == DEFAULT_PASSWORD) {
-                    onUserVerified(null, jwtProvider, ctx)
+                    onDefaultUserVerified(jwtProvider, ctx)
                 } else {
                     throw CredentialsException("Invalid credentials")
                 }
@@ -90,6 +91,10 @@ object AuthController {
         userDAO.updateUser(user) // Store user again.
 
         throw e
+    }
+
+    private fun onDefaultUserVerified(jwtProvider: JWTProvider, ctx: Context) {
+        ctx.result(jwtProvider.generateToken(User(id = -1, name = DEFAULT_USERNAME, role = Roles.ADMINISTRATOR)))
     }
 
     private fun onUserVerified(user: User?, jwtProvider: JWTProvider, ctx: Context) {
