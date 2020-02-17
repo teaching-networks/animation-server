@@ -5,6 +5,7 @@
 
 package edu.hm.cs.animation.server
 
+import SettingsController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.xenomachina.argparser.ArgParser
@@ -167,6 +168,18 @@ class HMAnimationServer {
                     ApiBuilder.path(":id") {
                         ApiBuilder.get(AnimGroupController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         ApiBuilder.delete(AnimGroupController::delete, roles(Roles.ADMINISTRATOR))
+                    }
+                }
+
+                // Settings controller
+                ApiBuilder.path(SettingsController.PATH) {
+                    ApiBuilder.get(SettingsController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                    ApiBuilder.post(SettingsController::create, roles(Roles.ADMINISTRATOR))
+                    ApiBuilder.patch(SettingsController::update, roles(Roles.ADMINISTRATOR))
+
+                    ApiBuilder.path(":key") {
+                        ApiBuilder.get(SettingsController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                        ApiBuilder.delete(SettingsController::delete, roles(Roles.ADMINISTRATOR))
                     }
                 }
 

@@ -1,5 +1,8 @@
 # Changelog
 
+### 2.2.0
+- Added settings controller
+
 ### 2.1.0 - Maintenance Update
 - Migration from Java 8 to Java 13
 - Updated Javalin + all used dependencies

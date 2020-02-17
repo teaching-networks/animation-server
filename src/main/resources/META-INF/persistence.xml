@@ -10,6 +10,7 @@
         <class>edu.hm.cs.animation.server.animation.model.Animation</class>
         <class>edu.hm.cs.animation.server.animation.properties.model.AnimationProperty</class>
         <class>edu.hm.cs.animation.server.animgroup.model.AnimGroup</class>
+        <class>edu.hm.cs.animation.server.settings.model.Setting</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
