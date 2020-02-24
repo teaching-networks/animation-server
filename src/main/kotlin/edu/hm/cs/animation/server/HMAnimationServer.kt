@@ -8,6 +8,7 @@ package edu.hm.cs.animation.server
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.xenomachina.argparser.ArgParser
+import edu.hm.cs.animation.server.YAARS.lecture.LectureController
 import edu.hm.cs.animation.server.animation.AnimationController
 import edu.hm.cs.animation.server.animation.properties.AnimationPropertiesController
 import edu.hm.cs.animation.server.animgroup.AnimGroupController
@@ -167,6 +168,19 @@ class HMAnimationServer {
                     ApiBuilder.path(":id") {
                         ApiBuilder.get(AnimGroupController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         ApiBuilder.delete(AnimGroupController::delete, roles(Roles.ADMINISTRATOR))
+                    }
+                }
+
+                ApiBuilder.path("yaars") {
+                    ApiBuilder.path(LectureController.PATH) {
+                        ApiBuilder.post(LectureController::create, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.get(LectureController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                        ApiBuilder.patch(LectureController::update, roles(Roles.ADMINISTRATOR))
+
+                        ApiBuilder.path(":id") {
+                            ApiBuilder.get(LectureController::read, roles(Roles.ADMINISTRATOR))
+                            ApiBuilder.delete(LectureController::delete, roles(Roles.ADMINISTRATOR))
+                        }
                     }
                 }
 
