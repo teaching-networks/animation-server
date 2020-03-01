@@ -1,8 +1,8 @@
-package edu.hm.cs.animation.server.YAARS.lecture
+package edu.hm.cs.animation.server.yaars.lecture
 
-import edu.hm.cs.animation.server.YAARS.lecture.DAO.LectureDAO
-import edu.hm.cs.animation.server.YAARS.lecture.model.Lecture
 import edu.hm.cs.animation.server.util.rest.CRUDController
+import edu.hm.cs.animation.server.yaars.lecture.dao.LectureDAO
+import edu.hm.cs.animation.server.yaars.lecture.model.Lecture
 import io.javalin.http.Context
 
 object LectureController : CRUDController {
@@ -19,7 +19,11 @@ object LectureController : CRUDController {
     override fun read(ctx: Context) {
         val id = ctx.pathParam("id").toLong()
 
-        ctx.json(lectureDAO.find(id))
+        try {
+            lectureDAO.find(id)
+        } catch (e: IllegalStateException) {
+            ctx.status(404)
+        }
     }
 
     override fun readAll(ctx: Context) {
@@ -34,6 +38,11 @@ object LectureController : CRUDController {
 
     override fun delete(ctx: Context) {
         val id = ctx.pathParam("id").toLong()
-        lectureDAO.remove(id)
+
+        try {
+            lectureDAO.remove(id)
+        } catch (e: IllegalStateException) {
+            ctx.status(404)
+        }
     }
 }

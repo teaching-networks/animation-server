@@ -1,7 +1,7 @@
-package edu.hm.cs.animation.server.YAARS.lecture.DAO
+package edu.hm.cs.animation.server.yaars.lecture.dao
 
-import edu.hm.cs.animation.server.YAARS.lecture.model.Lecture
 import edu.hm.cs.animation.server.util.PersistenceUtil
+import edu.hm.cs.animation.server.yaars.lecture.model.Lecture
 
 class LectureDAO {
 

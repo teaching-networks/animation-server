@@ -8,7 +8,6 @@ package edu.hm.cs.animation.server
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.xenomachina.argparser.ArgParser
-import edu.hm.cs.animation.server.YAARS.lecture.LectureController
 import edu.hm.cs.animation.server.animation.AnimationController
 import edu.hm.cs.animation.server.animation.properties.AnimationPropertiesController
 import edu.hm.cs.animation.server.animgroup.AnimGroupController
@@ -18,6 +17,8 @@ import edu.hm.cs.animation.server.user.UserController
 import edu.hm.cs.animation.server.user.model.User
 import edu.hm.cs.animation.server.util.cmdargs.CMDLineArgumentParser
 import edu.hm.cs.animation.server.util.file.FileWatcher
+import edu.hm.cs.animation.server.yaars.lecture.LectureController
+import edu.hm.cs.animation.server.yaars.poll.PollController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.core.security.Role
@@ -178,8 +179,19 @@ class HMAnimationServer {
                         ApiBuilder.patch(LectureController::update, roles(Roles.ADMINISTRATOR))
 
                         ApiBuilder.path(":id") {
-                            ApiBuilder.get(LectureController::read, roles(Roles.ADMINISTRATOR))
+                            ApiBuilder.get(LectureController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                             ApiBuilder.delete(LectureController::delete, roles(Roles.ADMINISTRATOR))
+                        }
+                    }
+
+                    ApiBuilder.path(PollController.PATH) {
+                        ApiBuilder.post(PollController::create, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.get(PollController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                        ApiBuilder.patch(PollController::update, roles(Roles.ADMINISTRATOR))
+
+                        ApiBuilder.path(":id") {
+                            ApiBuilder.get(PollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                            ApiBuilder.delete(PollController::delete, roles(Roles.ADMINISTRATOR))
                         }
                     }
                 }
