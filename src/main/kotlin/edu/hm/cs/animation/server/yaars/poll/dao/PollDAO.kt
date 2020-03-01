@@ -1,7 +1,6 @@
 package edu.hm.cs.animation.server.yaars.poll.dao
 
 import edu.hm.cs.animation.server.util.PersistenceUtil
-import edu.hm.cs.animation.server.yaars.poll.answer.model.Answer
 import edu.hm.cs.animation.server.yaars.poll.model.Poll
 
 class PollDAO {
@@ -48,11 +47,4 @@ class PollDAO {
         }
     }
 
-    fun getAllAnswers(id: Long): List<Answer> {
-        return PersistenceUtil.transaction {
-            return@transaction it.createQuery("SELECT a FROM Answer a, Poll p WHERE a.relatedPoll.id = p.id AND p.id = $id"
-                    , Answer::class.java).resultList!!
-        }
-
-    }
 }

@@ -19,11 +19,7 @@ object LectureController : CRUDController {
     override fun read(ctx: Context) {
         val id = ctx.pathParam("id").toLong()
 
-        try {
-            lectureDAO.find(id)
-        } catch (e: IllegalStateException) {
-            ctx.status(404)
-        }
+        ctx.json(lectureDAO.find(id))
     }
 
     override fun readAll(ctx: Context) {
@@ -39,10 +35,6 @@ object LectureController : CRUDController {
     override fun delete(ctx: Context) {
         val id = ctx.pathParam("id").toLong()
 
-        try {
-            lectureDAO.remove(id)
-        } catch (e: IllegalStateException) {
-            ctx.status(404)
-        }
+        lectureDAO.remove(id)
     }
 }

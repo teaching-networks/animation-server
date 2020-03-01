@@ -37,9 +37,4 @@ object PollController : CRUDController {
 
         pollDAO.remove(id)
     }
-
-    fun returnAllAnswers(ctx: Context) {
-        val id = ctx.pathParam("id").toLong()
-        ctx.json(pollDAO.getAllAnswers(id))
-    }
 }
