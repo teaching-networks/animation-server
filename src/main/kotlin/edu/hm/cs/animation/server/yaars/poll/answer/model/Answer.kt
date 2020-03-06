@@ -36,5 +36,8 @@ data class Answer(
          */
         @ManyToOne
         @JsonBackReference
-        var relatedPoll: Poll? = null
+        var relatedPoll: Poll? = null,
+
+        @Column(name = "times_voted")
+        var timesVoted: Int = 0
 )

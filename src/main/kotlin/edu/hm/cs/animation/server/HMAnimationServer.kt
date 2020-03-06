@@ -19,6 +19,7 @@ import edu.hm.cs.animation.server.util.cmdargs.CMDLineArgumentParser
 import edu.hm.cs.animation.server.util.file.FileWatcher
 import edu.hm.cs.animation.server.yaars.lecture.LectureController
 import edu.hm.cs.animation.server.yaars.poll.PollController
+import edu.hm.cs.animation.server.yaars.vote.VotingController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.core.security.Role
@@ -172,7 +173,10 @@ class HMAnimationServer {
                     }
                 }
 
+                // YAARS controller
                 ApiBuilder.path("yaars") {
+
+                    // Lecture controller
                     ApiBuilder.path(LectureController.PATH) {
                         ApiBuilder.post(LectureController::create, roles(Roles.ADMINISTRATOR))
                         ApiBuilder.get(LectureController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
@@ -184,6 +188,7 @@ class HMAnimationServer {
                         }
                     }
 
+                    // Poll controller
                     ApiBuilder.path(PollController.PATH) {
                         ApiBuilder.post(PollController::create, roles(Roles.ADMINISTRATOR))
                         ApiBuilder.get(PollController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
@@ -192,6 +197,13 @@ class HMAnimationServer {
                         ApiBuilder.path(":id") {
                             ApiBuilder.get(PollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                             ApiBuilder.delete(PollController::delete, roles(Roles.ADMINISTRATOR))
+                        }
+                    }
+
+                    // Voting controller
+                    ApiBuilder.path(VotingController.PATH) {
+                        ApiBuilder.path(":id") {
+                            ApiBuilder.patch(VotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         }
                     }
                 }
