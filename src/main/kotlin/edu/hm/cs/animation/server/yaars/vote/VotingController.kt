@@ -16,12 +16,12 @@ object VotingController {
      * "id": x where x stands for the answerId of the question you want to vote for
      */
     fun vote(ctx: Context) {
-        val id = ctx.pathParam("id").toLong()
+        val id = ctx.pathParam("idP").toLong()
         val poll = pollDAO.find(id)
-        val votedAnswerId = ctx.bodyValidator<Map<String, Int>>().get()
+        val votedAnswerId = ctx.pathParam("idA").toLong()
 
         if (poll.active) {
-            answerDAO.vote((votedAnswerId["id"] ?: error("")).toLong())
+            answerDAO.vote(votedAnswerId)
             ctx.status(200)
         } else {
             ctx.status(400)

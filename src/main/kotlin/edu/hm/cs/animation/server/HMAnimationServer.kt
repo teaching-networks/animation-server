@@ -202,7 +202,7 @@ class HMAnimationServer {
 
                     // Voting controller
                     ApiBuilder.path(VotingController.PATH) {
-                        ApiBuilder.path(":id") {
+                        ApiBuilder.path(":idP/:idA") {
                             ApiBuilder.patch(VotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         }
                     }
