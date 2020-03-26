@@ -10,6 +10,9 @@
         <class>edu.hm.cs.animation.server.animation.model.Animation</class>
         <class>edu.hm.cs.animation.server.animation.properties.model.AnimationProperty</class>
         <class>edu.hm.cs.animation.server.animgroup.model.AnimGroup</class>
+        <class>edu.hm.cs.animation.server.yaars.lecture.model.Lecture</class>
+        <class>edu.hm.cs.animation.server.yaars.poll.model.Poll</class>
+        <class>edu.hm.cs.animation.server.yaars.poll.answer.model.Answer</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
