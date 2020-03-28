@@ -113,6 +113,9 @@ class HMAnimationServer {
     private fun setupRoutes(app: Javalin, jwtProvider: JWTProvider) {
         val decodeHandler = JavalinJWT.createHeaderDecodeHandler(jwtProvider)
         app.before(decodeHandler)
+        app.wsBefore("/api/yaars/vote/ws") { ws ->
+            ws.onConnect { ctx -> ctx.send("CONNECTED\r\nversion:1.0\r\n\r\n\u0000") }
+        }
 
         app.routes {
             ApiBuilder.before("*") { ctx -> ctx.header("Access-Control-Allow-Credentials", "true") }
@@ -205,6 +208,7 @@ class HMAnimationServer {
                         ApiBuilder.path(":idP/:idA") {
                             ApiBuilder.patch(VotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         }
+                        ApiBuilder.ws("ws", { ws -> ws.onMessage(VotingController::onMessage) }, roles(Roles.ANYONE))
                     }
                 }
 
