@@ -1,7 +1,8 @@
 package edu.hm.cs.animation.server.yaars.vote
 
-import edu.hm.cs.animation.server.util.stomp.STOMPDecoder
+import edu.hm.cs.animation.server.util.stomp.STOMPFrameBuilder
 import edu.hm.cs.animation.server.util.stomp.STOMPMethod
+import edu.hm.cs.animation.server.util.stomp.STOMPParser
 import edu.hm.cs.animation.server.yaars.poll.answer.dao.AnswerDAO
 import edu.hm.cs.animation.server.yaars.poll.dao.PollDAO
 import io.javalin.http.Context
@@ -33,14 +34,16 @@ object VotingController {
 
     // Just for demonstration.
     fun onMessage(ctx: WsMessageContext) {
-        val request = STOMPDecoder.decodeSTOMPRequest(ctx)
+        val request = STOMPParser.parseSTOMPRequestFromContext(ctx)
         when (request.method) {
-            STOMPMethod.SEND -> {
-                ctx.send("RECEIPT\r\nreceipt-id:message-12345\r\n\r\n" + '\u0000')
-                print(request.body)
+            STOMPMethod.SUBSCRIBE -> {
+                val builder = STOMPFrameBuilder()
+                        .setMethod(STOMPMethod.MESSAGE)
+                        .setHeader(mapOf("subscription" to request.header["id"]!!, "destination" to request.header["destination"]!!))
+                        .setBody("Hallo")
+                ctx.send(STOMPParser.writeSTOMPResponseFromFrame(builder.build()))
             }
-            STOMPMethod.SUBSCRIBE -> print(request.body)
-            else -> print("Other than SEND or SUBSCRIBE")
+            else -> print("Other than SUBSCRIBE")
         }
     }
 }
