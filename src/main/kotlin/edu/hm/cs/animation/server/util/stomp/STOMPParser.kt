@@ -31,7 +31,7 @@ object STOMPParser {
         builder.setHeader(header)
 
         var body = ""
-        while (!messageLines[index].contains('\u0000')) {
+        while (index < messageLines.size) {
             body += messageLines[index]
             index++
         }
