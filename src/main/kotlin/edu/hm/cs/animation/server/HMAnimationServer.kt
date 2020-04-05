@@ -113,7 +113,7 @@ class HMAnimationServer {
     private fun setupRoutes(app: Javalin, jwtProvider: JWTProvider) {
         val decodeHandler = JavalinJWT.createHeaderDecodeHandler(jwtProvider)
         app.before(decodeHandler)
-        app.wsBefore("/api/yaars/vote/ws") { ws ->
+        app.wsBefore { ws ->
             ws.onConnect { ctx -> ctx.send("CONNECTED\r\nversion:1.0\r\n\r\n\u0000") }
         }
 
@@ -196,10 +196,12 @@ class HMAnimationServer {
                         ApiBuilder.post(PollController::create, roles(Roles.ADMINISTRATOR))
                         ApiBuilder.get(PollController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         ApiBuilder.patch(PollController::update, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSend) }, roles(Roles.ANYONE))
 
                         ApiBuilder.path(":id") {
                             ApiBuilder.get(PollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                             ApiBuilder.delete(PollController::delete, roles(Roles.ADMINISTRATOR))
+                            ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSubscribe) }, roles(Roles.ANYONE))
                         }
                     }
 
@@ -208,7 +210,6 @@ class HMAnimationServer {
                         ApiBuilder.path(":idP/:idA") {
                             ApiBuilder.patch(VotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         }
-                        ApiBuilder.ws("ws", { ws -> ws.onMessage(VotingController::onMessage) }, roles(Roles.ANYONE))
                     }
                 }
 

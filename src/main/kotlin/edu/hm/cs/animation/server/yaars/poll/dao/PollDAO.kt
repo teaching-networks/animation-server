@@ -47,4 +47,12 @@ class PollDAO {
         }
     }
 
+    fun setActive(id: Long) {
+        PersistenceUtil.transaction {
+            val poll = it.find(Poll::class.java, id)
+            poll.active = true
+
+            it.merge(poll)
+        }
+    }
 }

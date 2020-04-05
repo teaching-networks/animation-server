@@ -12,6 +12,8 @@ object STOMPParser {
     /**
      * Parses a STOMP request from the pure text of the {@link WsMessageContext} message method to a representative
      * STOMP Frame Object.
+     * @param ctx the WsMessageContext.
+     * @return STOMPFrame Object.
      */
     fun parseSTOMPRequestFromContext(ctx: WsMessageContext): STOMPFrame {
         val messageLines = ctx.message().split("\n")
@@ -40,6 +42,8 @@ object STOMPParser {
 
     /**
      * Generates a STOMP Response in form of a String from a STOMP Frame Object.
+     * @param responseFrame frame that should be converted.
+     * @return String containing a valid STOMP response.
      */
     fun writeSTOMPResponseFromFrame(responseFrame: STOMPFrame): String {
         val response = StringBuilder().appendln(responseFrame.method.toString())
