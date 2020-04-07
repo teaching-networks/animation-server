@@ -63,10 +63,20 @@ object PollController : CRUDController {
     }
 
     fun onMessageSubscribe(ctx: WsMessageContext) {
-        verifyForMethodOrNull(parseSTOMPRequestFromContext(ctx), STOMPMethod.SUBSCRIBE, ctx)?.let { request ->
-            val id = ctx.pathParam("id").toLong()
-            pollDAO.setActive(id)
-            STOMPSubscriptionManager.addSubscriber(ctx, request, id)
+        val clientRequest = parseSTOMPRequestFromContext(ctx)
+
+        if (clientRequest.method == STOMPMethod.SUBSCRIBE) {
+            verifyForMethodOrNull(clientRequest, STOMPMethod.SUBSCRIBE, ctx)?.let { request ->
+                val id = ctx.pathParam("id").toLong()
+                pollDAO.setActive(id, true)
+                STOMPSubscriptionManager.addSubscriber(ctx, request, id)
+            }
+        } else {
+            verifyForMethodOrNull(clientRequest, STOMPMethod.UNSUBSCRIBE, ctx)?.let { request ->
+                val id = ctx.pathParam("id").toLong()
+                pollDAO.setActive(id, false)
+                STOMPSubscriptionManager.removeAllSubscribersForId(id, request.header["id"]!!)
+            }
         }
     }
 }

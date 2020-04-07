@@ -47,10 +47,10 @@ class PollDAO {
         }
     }
 
-    fun setActive(id: Long) {
+    fun setActive(id: Long, status: Boolean) {
         PersistenceUtil.transaction {
             val poll = it.find(Poll::class.java, id)
-            poll.active = true
+            poll.active = status
 
             it.merge(poll)
         }

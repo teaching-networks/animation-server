@@ -38,7 +38,7 @@ object STOMPMethodVerificator {
                 return request
             }
             STOMPMethod.UNSUBSCRIBE -> {
-                if (request.header["destination"] == null || request.header["destination"] != ctx.matchedPath()) {
+                if (request.header["id"] == null) {
                     sendError("Bad request", ctx)
                     return null
                 }

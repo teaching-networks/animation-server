@@ -10,6 +10,9 @@ object STOMPSubscriptionManager {
     fun addSubscriber(ctx: WsMessageContext, request: STOMPFrame, pollId: Long) =
             subscribers.add(Triple(ctx, request, pollId))
 
+    fun removeAllSubscribersForId(pollId: Long, subscriptionId: String) =
+            subscribers.removeAll { triple -> triple.third == pollId && triple.second.header["id"]!! == subscriptionId }
+
     fun notifyAboutChange(poll: Poll) {
         val mapper = jacksonObjectMapper()
         for (s in subscribers) {
