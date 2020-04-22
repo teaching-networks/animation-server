@@ -1,9 +1,10 @@
 package edu.hm.cs.animation.server.yaars.vote
 
-import edu.hm.cs.animation.server.util.stomp.STOMPSubscriptionManager
+import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPPollSubscriptionManager
 import edu.hm.cs.animation.server.yaars.poll.answer.dao.AnswerDAO
 import edu.hm.cs.animation.server.yaars.poll.dao.PollDAO
 import io.javalin.http.Context
+import io.javalin.websocket.WsMessageContext
 
 object VotingController {
 
@@ -23,10 +24,21 @@ object VotingController {
 
         if (poll.active) {
             answerDAO.vote(votedAnswerId)
-            STOMPSubscriptionManager.notifyAboutChange(pollDAO.find(id))
+            STOMPPollSubscriptionManager.notifyAboutChange(pollDAO.find(id))
             ctx.status(200)
         } else {
             ctx.status(400)
+        }
+    }
+
+    fun voteWs(ctx: WsMessageContext) {
+        val id = ctx.pathParam("idP").toLong()
+        val poll = pollDAO.find(id)
+        val votedAnswerId = ctx.pathParam("idA").toLong()
+
+        if (poll.active) {
+            answerDAO.vote(votedAnswerId)
+            STOMPPollSubscriptionManager.notifyAboutChange(pollDAO.find(id))
         }
     }
 }

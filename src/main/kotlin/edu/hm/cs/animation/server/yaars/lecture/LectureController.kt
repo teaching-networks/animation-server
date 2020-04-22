@@ -1,9 +1,14 @@
 package edu.hm.cs.animation.server.yaars.lecture
 
 import edu.hm.cs.animation.server.util.rest.CRUDController
+import edu.hm.cs.animation.server.util.stomp.STOMPMethod
+import edu.hm.cs.animation.server.util.stomp.STOMPMethodVerificator.verifyForMethodOrNull
+import edu.hm.cs.animation.server.util.stomp.STOMPParser
+import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPLectureSubscriptionManager
 import edu.hm.cs.animation.server.yaars.lecture.dao.LectureDAO
 import edu.hm.cs.animation.server.yaars.lecture.model.Lecture
 import io.javalin.http.Context
+import io.javalin.websocket.WsMessageContext
 
 object LectureController : CRUDController {
 
@@ -36,5 +41,14 @@ object LectureController : CRUDController {
         val id = ctx.pathParam("id").toLong()
 
         lectureDAO.remove(id)
+    }
+
+    fun onMessageSubscribe(ctx: WsMessageContext) {
+        val clientRequest = STOMPParser.parseSTOMPRequestFromContext(ctx)
+
+        verifyForMethodOrNull(clientRequest, STOMPMethod.SUBSCRIBE, ctx)?.let { request ->
+            val lectureId = ctx.pathParam("id").toLong()
+            STOMPLectureSubscriptionManager.addSubscriber(ctx, request, lectureId)
+        }
     }
 }

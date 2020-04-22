@@ -8,7 +8,8 @@ import edu.hm.cs.animation.server.util.stomp.STOMPMethod
 import edu.hm.cs.animation.server.util.stomp.STOMPMethodVerificator.verifyForMethodOrNull
 import edu.hm.cs.animation.server.util.stomp.STOMPParser
 import edu.hm.cs.animation.server.util.stomp.STOMPParser.parseSTOMPRequestFromContext
-import edu.hm.cs.animation.server.util.stomp.STOMPSubscriptionManager
+import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPLectureSubscriptionManager
+import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPPollSubscriptionManager
 import edu.hm.cs.animation.server.yaars.poll.dao.PollDAO
 import edu.hm.cs.animation.server.yaars.poll.model.Poll
 import io.javalin.http.Context
@@ -68,14 +69,18 @@ object PollController : CRUDController {
         if (clientRequest.method == STOMPMethod.SUBSCRIBE) {
             verifyForMethodOrNull(clientRequest, STOMPMethod.SUBSCRIBE, ctx)?.let { request ->
                 val id = ctx.pathParam("id").toLong()
-                pollDAO.setActive(id, true)
-                STOMPSubscriptionManager.addSubscriber(ctx, request, id)
+                val changedPoll = pollDAO.setActive(id, true)
+
+                STOMPLectureSubscriptionManager.notifyAboutChange(changedPoll)
+                STOMPPollSubscriptionManager.addSubscriber(ctx, request, id)
             }
         } else {
             verifyForMethodOrNull(clientRequest, STOMPMethod.UNSUBSCRIBE, ctx)?.let { request ->
                 val id = ctx.pathParam("id").toLong()
-                pollDAO.setActive(id, false)
-                STOMPSubscriptionManager.removeAllSubscribersForId(id, request.header["id"]!!)
+                val changedPoll = pollDAO.setActive(id, false)
+
+                STOMPLectureSubscriptionManager.notifyAboutChange(changedPoll)
+                STOMPPollSubscriptionManager.removeAllSubscribersForId(id, request.header["id"]!!)
             }
         }
     }
