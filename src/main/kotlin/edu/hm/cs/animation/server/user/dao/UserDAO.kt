@@ -33,8 +33,7 @@ class UserDAO {
 
     fun findUserByName(name: String): User {
         return PersistenceUtil.transaction {
-            return@transaction it.createQuery("SELECT u from User u WHERE u.name = :name", User::class.java)
-                    .setParameter("name", name).singleResult!!
+            return@transaction it.createQuery("SELECT u from User u WHERE u.name = :name", User::class.java).setParameter("name", name).singleResult!!
         }
     }
 
