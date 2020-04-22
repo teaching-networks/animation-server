@@ -19,7 +19,8 @@ class FileWatcher {
     fun start(file: Path, callback: Runnable) {
         watchService = FileSystems.getDefault().newWatchService()
         val parent = file.parent
-        parent.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE)
+        parent.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY,
+                StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE)
         log.info("Going to watch $file")
 
         thread = Thread {

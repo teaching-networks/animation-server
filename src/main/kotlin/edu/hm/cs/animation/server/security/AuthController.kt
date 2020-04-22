@@ -57,7 +57,8 @@ object AuthController {
 
                 try {
                     if (user.unsuccessfulLoginAttempts!! >= MAXIMUM_LOGIN_ATTEMPTS) {
-                        val lockEnd = Timestamp(user.lastUnsuccessfulLogin!!.time + Duration.ofSeconds(LOGIN_PAUSE_SECONDS).toMillis())
+                        val lockEnd = Timestamp(user.lastUnsuccessfulLogin!!.time +
+                                Duration.ofSeconds(LOGIN_PAUSE_SECONDS).toMillis())
                         val now = Timestamp(Calendar.getInstance().time.time)
 
                         if (!now.after(lockEnd)) {

@@ -86,7 +86,11 @@ class HMAnimationServer {
         sslContextFactory.setKeyStorePassword(keystorePassword)
 
         val pathToKeystore = Paths.get(URI.create(sslContextFactory.keyStorePath))
-        FileWatcher.onFileChange(pathToKeystore, Runnable { sslContextFactory.reload { println("Certificates reloaded") } })
+        FileWatcher.onFileChange(pathToKeystore, Runnable {
+            sslContextFactory.reload {
+                println("Certificates reloaded")
+            }
+        })
 
         return sslContextFactory
     }
@@ -150,7 +154,8 @@ class HMAnimationServer {
 
                     // Animation properties controller
                     ApiBuilder.path(AnimationPropertiesController.PATH) {
-                        ApiBuilder.get(AnimationPropertiesController::getProperties, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                        ApiBuilder.get(AnimationPropertiesController::getProperties,
+                                roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         ApiBuilder.post(AnimationPropertiesController::setValue, roles(Roles.ADMINISTRATOR))
                     }
                     ApiBuilder.path(":id") {

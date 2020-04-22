@@ -91,7 +91,8 @@ class AnimationPropertyDAO {
 
     fun setValue(animationId: Long, locale: String, key: String, value: String) {
         PersistenceUtil.transaction {
-            val property: AnimationProperty? = it.find(AnimationProperty::class.java, AnimationPropertyCompositeKey(animationId, locale, key))
+            val property: AnimationProperty? = it
+                    .find(AnimationProperty::class.java, AnimationPropertyCompositeKey(animationId, locale, key))
 
             if (property == null) {
                 // Does not exist yet -> Create
