@@ -60,7 +60,7 @@ dependencies {
     // Java persistence API dependencies
     implementation "org.hibernate:hibernate-core:${hibernateVersion}"
     implementation "org.hibernate:hibernate-c3p0:${hibernateVersion}"
-    implementation "org.postgresql:postgresql:42.2.8" // JDBC driver
+    implementation "org.postgresql:postgresql:42.2.9" // JDBC driver
 
     // Testing libraries
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
