@@ -13,4 +13,5 @@ gradle-app.setting
 
 # IntelliJ Idea project files
 .idea/
+.DS_Store
 **/*.iml

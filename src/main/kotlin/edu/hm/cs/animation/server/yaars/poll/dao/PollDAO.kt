@@ -27,6 +27,14 @@ class PollDAO {
         }
     }
 
+    fun getAllActiveForLectureId(id: Long): List<Poll> {
+        return PersistenceUtil.transaction {
+            return@transaction it
+                    .createQuery("SELECT p from Poll p WHERE p.active = True AND p.lecture.id = $id", Poll::class.java)
+                    .resultList!!
+        }
+    }
+
     fun update(poll: Poll) {
         PersistenceUtil.transaction {
             val updatedPoll = it.find(Poll::class.java, poll.id)

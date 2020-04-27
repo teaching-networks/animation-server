@@ -7,6 +7,7 @@ import edu.hm.cs.animation.server.util.stomp.STOMPParser
 import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPLectureSubscriptionManager
 import edu.hm.cs.animation.server.yaars.lecture.dao.LectureDAO
 import edu.hm.cs.animation.server.yaars.lecture.model.Lecture
+import edu.hm.cs.animation.server.yaars.poll.dao.PollDAO
 import io.javalin.http.Context
 import io.javalin.websocket.WsMessageContext
 
@@ -14,6 +15,7 @@ object LectureController : CRUDController {
 
     const val PATH = "lecture"
     private val lectureDAO = LectureDAO()
+    private val pollDAO = PollDAO()
 
     override fun create(ctx: Context) {
         val lecture = ctx.bodyValidator<Lecture>().get()
@@ -46,9 +48,20 @@ object LectureController : CRUDController {
     fun onMessageSubscribe(ctx: WsMessageContext) {
         val clientRequest = STOMPParser.parseSTOMPRequestFromContext(ctx)
 
-        verifyForMethodOrNull(clientRequest, STOMPMethod.SUBSCRIBE, ctx)?.let { request ->
-            val lectureId = ctx.pathParam("id").toLong()
-            STOMPLectureSubscriptionManager.addSubscriber(ctx, request, lectureId)
+        if (clientRequest.method == STOMPMethod.SUBSCRIBE) {
+            verifyForMethodOrNull(clientRequest, STOMPMethod.SUBSCRIBE, ctx)?.let { request ->
+                val lectureId = ctx.pathParam("id").toLong()
+                STOMPLectureSubscriptionManager.addSubscriber(ctx, request, lectureId)
+                val activePolls = pollDAO.getAllActiveForLectureId(lectureId)
+                for (poll in activePolls) {
+                    STOMPLectureSubscriptionManager.notifyAboutChange(poll)
+                }
+            }
+        } else {
+            verifyForMethodOrNull(clientRequest, STOMPMethod.UNSUBSCRIBE, ctx)?.let { request ->
+                val lectureId = ctx.pathParam("id").toLong()
+                STOMPLectureSubscriptionManager.removeAllSubscribersForId(lectureId, request.header["id"]!!)
+            }
         }
     }
 }

@@ -56,7 +56,8 @@ object PollController : CRUDController {
 
             val response = STOMPFrameBuilder()
                     .setMethod(STOMPMethod.RECEIPT)
-                    .setHeader(mapOf("receipt-id" to request.header["receipt"]!!, "poll-id" to createdPollId.toString()))
+                    .setHeader(
+                            mapOf("receipt-id" to request.header["receipt"]!!, "poll-id" to createdPollId.toString()))
                     .build()
 
             ctx.send(STOMPParser.writeSTOMPResponseFromFrame(response))
