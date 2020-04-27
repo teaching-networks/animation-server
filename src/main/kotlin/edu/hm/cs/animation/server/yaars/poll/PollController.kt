@@ -48,6 +48,9 @@ object PollController : CRUDController {
         pollDAO.remove(id)
     }
 
+    /**
+     * Reacts on a STOMP Send Message which represents the creation of a new poll.
+     */
     fun onMessageSend(ctx: WsMessageContext) {
         verifyForMethodOrNull(parseSTOMPRequestFromContext(ctx), STOMPMethod.SEND, ctx)?.let { request ->
             val mapper = jacksonObjectMapper()
@@ -64,22 +67,31 @@ object PollController : CRUDController {
         }
     }
 
+    /**
+     * Reacts to a STOMP Subscribe or Unsubscribe message.
+     */
     fun onMessageSubscribe(ctx: WsMessageContext) {
         val clientRequest = parseSTOMPRequestFromContext(ctx)
 
         if (clientRequest.method == STOMPMethod.SUBSCRIBE) {
             verifyForMethodOrNull(clientRequest, STOMPMethod.SUBSCRIBE, ctx)?.let { request ->
+                // Set the status of the poll to active
                 val id = ctx.pathParam("id").toLong()
                 val changedPoll = pollDAO.setActive(id, true)
 
+                // Notify all clients (Lecture subscribers) about the new status and
+                // add the poll subscriber to the list.
                 STOMPLectureSubscriptionManager.notifyAboutChange(changedPoll)
                 STOMPPollSubscriptionManager.addSubscriber(ctx, request, id)
             }
         } else {
             verifyForMethodOrNull(clientRequest, STOMPMethod.UNSUBSCRIBE, ctx)?.let { request ->
+                // Set the status to inactive
                 val id = ctx.pathParam("id").toLong()
                 val changedPoll = pollDAO.setActive(id, false)
 
+                // Notify all clients (Lecture subscribers) about the new status and remove
+                // the poll subscriber to the list.
                 STOMPLectureSubscriptionManager.notifyAboutChange(changedPoll)
                 STOMPPollSubscriptionManager.removeAllSubscribersForId(id, request.header["id"]!!)
             }

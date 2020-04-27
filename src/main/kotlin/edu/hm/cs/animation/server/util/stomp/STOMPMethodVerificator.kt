@@ -17,38 +17,39 @@ object STOMPMethodVerificator {
      */
     fun verifyForMethodOrNull(request: STOMPFrame, wantedMethod: STOMPMethod, ctx: WsMessageContext): STOMPFrame? {
         if (request.method == STOMPMethod.CONNECT) return null
-        if (request.method != wantedMethod) {
-            sendError("STOMP Method ${request.method} not supported here!", ctx)
-            return null
-        }
 
+        val result: STOMPFrame?
         when (wantedMethod) {
             STOMPMethod.SEND -> {
-                if (request.body == null) {
+                result = if (request.body == null) {
                     sendError("Can't find body", ctx)
-                    return null
+                    null
+                } else {
+                    request
                 }
-                return request
             }
             STOMPMethod.SUBSCRIBE -> {
-                if (request.header["destination"] == null || request.header["id"] == null) {
+                result = if (request.header["destination"] == null || request.header["id"] == null) {
                     sendError("Bad request", ctx)
-                    return null
+                    null
+                } else {
+                    request
                 }
-                return request
             }
             STOMPMethod.UNSUBSCRIBE -> {
-                if (request.header["id"] == null) {
+                result = if (request.header["id"] == null) {
                     sendError("Bad request", ctx)
-                    return null
+                    null
+                } else {
+                    request
                 }
-                return request
             }
             else -> {
                 sendError("Bad request", ctx)
-                return null
+                result = null
             }
         }
+        return result
     }
 
     /**

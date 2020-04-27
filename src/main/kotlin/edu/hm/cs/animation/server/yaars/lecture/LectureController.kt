@@ -7,7 +7,6 @@ import edu.hm.cs.animation.server.util.stomp.STOMPParser
 import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPLectureSubscriptionManager
 import edu.hm.cs.animation.server.yaars.lecture.dao.LectureDAO
 import edu.hm.cs.animation.server.yaars.lecture.model.Lecture
-import edu.hm.cs.animation.server.yaars.poll.dao.PollDAO
 import io.javalin.http.Context
 import io.javalin.websocket.WsMessageContext
 
@@ -15,7 +14,6 @@ object LectureController : CRUDController {
 
     const val PATH = "lecture"
     private val lectureDAO = LectureDAO()
-    private val pollDAO = PollDAO()
 
     override fun create(ctx: Context) {
         val lecture = ctx.bodyValidator<Lecture>().get()
@@ -45,20 +43,29 @@ object LectureController : CRUDController {
         lectureDAO.remove(id)
     }
 
+    /**
+     * Reacts on a websocket message. At this point we either get subscribe or unsubscribe methods, everything else
+     * will be handled as a "Bad request".
+     * @param ctx the WebsocketMessageContext.
+     */
     fun onMessageSubscribe(ctx: WsMessageContext) {
         val clientRequest = STOMPParser.parseSTOMPRequestFromContext(ctx)
 
         if (clientRequest.method == STOMPMethod.SUBSCRIBE) {
             verifyForMethodOrNull(clientRequest, STOMPMethod.SUBSCRIBE, ctx)?.let { request ->
+                // Add to the subscribers.
                 val lectureId = ctx.pathParam("id").toLong()
                 STOMPLectureSubscriptionManager.addSubscriber(ctx, request, lectureId)
-                val activePolls = pollDAO.getAllActiveForLectureId(lectureId)
+
+                // Gets all the polls which are already active for this id and sends it to the subscribers.
+                val activePolls = lectureDAO.getAllActiveForLectureId(lectureId)
                 for (poll in activePolls) {
-                    STOMPLectureSubscriptionManager.notifyAboutChange(poll)
+                    STOMPLectureSubscriptionManager.factorAndSendResponse(Triple(ctx, request, lectureId), poll)
                 }
             }
         } else {
             verifyForMethodOrNull(clientRequest, STOMPMethod.UNSUBSCRIBE, ctx)?.let { request ->
+                // Removes the related subscription.
                 val lectureId = ctx.pathParam("id").toLong()
                 STOMPLectureSubscriptionManager.removeAllSubscribersForId(lectureId, request.header["id"]!!)
             }

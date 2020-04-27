@@ -31,6 +31,9 @@ object VotingController {
         }
     }
 
+    /**
+     * Votes for a Poll. Does the same as {@link vote} above but with a Websocket Context.
+     */
     fun voteWs(ctx: WsMessageContext) {
         val id = ctx.pathParam("idP").toLong()
         val poll = pollDAO.find(id)

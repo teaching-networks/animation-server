@@ -2,6 +2,9 @@ package edu.hm.cs.animation.server.util.stomp.subscriptions
 
 import edu.hm.cs.animation.server.yaars.poll.model.Poll
 
+/**
+ * A Subscription Manager for polls.
+ */
 object STOMPPollSubscriptionManager : STOMPSubscriptionManager<Poll>() {
     override fun notifyAboutChange(changedObject: Poll) {
         for (subscriber in subscribers) {
