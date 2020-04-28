@@ -23,6 +23,7 @@ test:
   - www
   script:
   - ./gradlew -Dorg.gradle.java.home=/opt/jdk-12 check
+  - ./gradlew detekt
 
 deploy:
   stage: deploy
