@@ -1,7 +1,7 @@
 # Guide
 
-This Guide will lead you through development with the yaars Backend Server. As the Server was initial build for the NetworksAnimation Project, this guide will contain information that's already mentioned in the [Networks animation guide](https://sam-dev.cs.hm.edu/WEBDEV/netzwerke-animationen/-/blob/master/docs/guide/GUIDE.md).
-Be aware that this document only covers yaars related content, for information about the Networks animation part refer to the other guide. 
+This Guide will lead you through the development with the yaars backend server. As the server was initially build for the NetworksAnimation project, this guide will contain information that are already mentioned in the [Networks animation guide](https://sam-dev.cs.hm.edu/WEBDEV/netzwerke-animationen/-/blob/master/docs/guide/GUIDE.md).
+Be aware that this document only covers yaars related topics, for information about the network animation part refer to the other guide. 
 
 
 ## Content
@@ -23,13 +23,13 @@ Be aware that this document only covers yaars related content, for information a
 
 ## Introduction
 
-This server was initially written as a backend for the Networks animation project, but as the yaars project started it 
-was extended to be used as a backend for yaars. The basic functionality of the Networks animation part is still used and there's
-some overlapping of functionality for both projects.
+This server was initially written as a backend for the NetworksAnimation project, but as the yaars project started it 
+was extended to be used as a backend for yaars. The basic functionality of the NetworksAnimation part is still used and there's
+some overlap of functionality for both projects.
 
 The yaars project aims to provide an easy to use, open-source and self-hosted [ARS System](https://de.wikipedia.org/wiki/Audience_Response_System).
-This Server provides the backend logic, the databases and the API for any other component to connect. The setup of the 
-development environment and the functionality of the Server is explained in this guide.
+The server provides the backend logic, the databases and the API for any other component to connect. The setup of the 
+development environment and the functionality of the server is explained in this guide.
 
 
 ## Installation
@@ -42,14 +42,14 @@ The following chapters will guide you through the installation of the developmen
 First of all, check that you have **Git** (https://git-scm.com/) installed in order to clone the repositories.
 
 For the Server you'll need a recent Java **JDK** version (at the time of writing its Java 13).
-To make sure its the correct one head over to the `build.gradle` file in the Server repository's root.
-Should look something like this:
+To make sure its the correct one head over to the `build.gradle` file in the server repository's root.
+The file should look something like this:
 
 ![Gradle build file screenshot](res/gradle-build-file-screenshot.png)
 
-All other dependencies should be installed automatically by the Server build tool **Gradle** when opening the projects in your favorite IDE.
+All other dependencies should be installed automatically by the server build tool **Gradle** when opening the projects in your favorite IDE.
 
-The Server is written in [Kotlin](https://kotlinlang.org) using the [Javalin Framework](https://javalin.io).
+The server is written in [Kotlin](https://kotlinlang.org) using the [Javalin Framework](https://javalin.io).
 
 If you're using IntelliJ IDEA it is recommended to install the [detekt plugin](https://plugins.jetbrains.com/plugin/10761-detekt).
 [Detekt](https://detekt.github.io/detekt/) is a static code analysis tool for
@@ -58,7 +58,7 @@ Kotlin and used to check for code smell in this project. The rules for the detek
 
 ### Database Setup
 
-Since the Server requires a database to be set up we'll do just that.
+Since the server requires a database to be setup we'll do just that.
 Head over to [https://www.postgresql.org/](https://www.postgresql.org/) and install the database server for your platform.
 
 Once that is done create a database called `hmserver` and make sure the username is `postgres` and the password is `root`.
@@ -70,9 +70,9 @@ the right configuration for the server is as followed:
 
 `docker run --name postgres -p 5432:5432 -e POSTGRES_DB=hmserver -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=root -d postgres`
 
-Also the tool psql is very helpful for the development with postgres. It provides a connection to the database and therefore
+The tool psql is very helpful for the development with postgres. It provides a connection to the database and therefore
 a CLI to run sql commands on the database. It's usually installed with the postgres installation, but if you're using the docker
-image it's easier to install it seperatly. Under macOS homebrew provides the package "libq", which contains psql.
+image it's easier to install it separately. Under macOS homebrew provides the package "libq", which contains psql.
 
 > You may wonder about the name of the database. 
 > It is defined in the file at `animation-server/src/main/resources/META-INF/persistence.xml` which defines the JPA configuration. 
@@ -81,10 +81,10 @@ image it's easier to install it seperatly. Under macOS homebrew provides the pac
 ## Development
 
 
-### Start the Server
+### Start the server
 
 
-In order to run the Server you could either create a Shell or Batch script to start up your Server or create an IntelliJ run configuration.
+In order to run the server you could either create a Shell or Batch script to start up your server or create an IntelliJ run configuration.
 
 ![Run configuration dialog](res/run-configuration-dialog.png)
 
@@ -129,9 +129,9 @@ After success the built artifact will be located at `{SERVER_PROJECT_ROOT}/build
 
 #### Service
 
-To start the service call `sudo systemctl stop hm-animations-server.service`.
+To stop the service call `sudo systemctl stop hm-animations-server.service`.
 
-To start it call `sudo systemctl restart hm-animations-server.service`.
+To re-start it call `sudo systemctl restart hm-animations-server.service`.
 
 You can also see the logs of the running server by calling `journalctl -u hm-animations-server.service -b -e -f`.
 
@@ -147,7 +147,7 @@ Once the keystore file is updated automatically once every few months the server
 Thus there is no downtime to the server even when running a long time.
 
 But where does the certificate really come from?
-We use an Apache HTTPD web server to serve the Client application from.
+We use an Apache HTTPD web server to serve the client application from.
 The Let's Encrypt `certbot` is already registered for the Apache web server and renews automatically.
 Therefore we do not need to call the certbot ourselves but just use the certificate of the Apache web server for our application server.
 The current certificate and private key are always stored at `/etc/letsencrypt/live/www.sam.cs.hm.edu`.
@@ -194,12 +194,12 @@ The Server is a Gradle project and thus has the normal directory structure.
 ## YAARS API
 
 The yaars API provides the ability to create, query and change the yaars related databases. The following part will 
-walk you through the each endpoint and it's functionality.
+walk you through each endpoint and it's functionality.
 
-### Database Scheme
+### Database scheme
 
 The database scheme for yaars is pretty basic and consists of three entities: lectures, polls and answers. The general idea is
-that a poll is related to a certain lecture (in order to search for all open poll for a specific lecture). A poll has a question and 
+that a poll is related to a certain lecture (in order to search for all open polls for a specific lecture). A poll has a question and 
 multiple answers which can be correct or not and which have a certain number which represents how often somebody voted for it.
 
 The Scheme is as followed:
@@ -208,7 +208,7 @@ The Scheme is as followed:
 
 ### REST API
 
-Each entity has it's own rest endpoint which is implementing the CRUD interface (src/main/kotlin/edu.hm.cs.animation.server/util/rest).
+Each entity has its own rest endpoint which is implementing the CRUD interface (src/main/kotlin/edu.hm.cs.animation.server/util/rest).
 Therefore each endpoint handles GET, POST and PATCH requests. If a certain id is provided in the path (e.g. poll/2) the 
 endpoint handles GET and DELETE methods related to the column with the specified id.
 
@@ -225,7 +225,7 @@ The endpoints are organized as followed:
 
 ### STOMP over Websocket
 
-In order to communicate fluently with the clients, the Server provides three websocket endpoints accepting STOMP requests.
+In order to communicate fluently with the clients, the server provides three websocket endpoints accepting STOMP requests.
 STOMP is a communication protocol for websockets, you can read about it on the [offical website](http://stomp.github.io/stomp-specification-1.0.html).
 This Server implements endpoints which are able to accept STOMP 1.0 requests. But be aware that not every STOMP method is
 implemented. Only CONNECT, SEND, SUBSCRIBE, UNSUBSCRIBE and RECEIPT methods are accepted or send.
@@ -236,7 +236,7 @@ The endpoints are:
 - /api/yaars
         - /poll -> Handels the creation of polls over stomp (SEND Method)
             - /:id -> Handels subscriptions to polls over stomp (SUBSCRIBE / UNSUBSCRIBE Method)
-        - /lecture/:id -> Handels subscriptions to all open Polls for a certain lecture. The server will send updates whenever a poll is switched active (SUBSCRIBE / UNSUBSCRIBE Method)
+        - /lecture/:id -> Handels subscriptions to all open polls for a certain lecture. The server will send updates whenever a poll is switched active (SUBSCRIBE / UNSUBSCRIBE method)
         - /vote/:idPoll/:idAnswer -> Handels voting over STOMP, votes for an answer with idPoll and idAnswer (SEND Method)
 ``` 
 
