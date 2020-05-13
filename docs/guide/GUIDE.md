@@ -51,7 +51,8 @@ All other dependencies should be installed automatically by the Server build too
 
 The Server is written in [Kotlin](https://kotlinlang.org) using the [Javalin Framework](https://javalin.io).
 
-If you're using IntelliJ IDEA it is recommended to install the detekt plugin. detekt is a static code analysis tool for
+If you're using IntelliJ IDEA it is recommended to install the [detekt plugin](https://plugins.jetbrains.com/plugin/10761-detekt).
+[Detekt](https://detekt.github.io/detekt/) is a static code analysis tool for
 Kotlin and used to check for code smell in this project. The rules for the detekt plugin reside in the detekt-config.yml file.
 
 
@@ -64,14 +65,14 @@ Once that is done create a database called `hmserver` and make sure the username
 The server will use that one later on.
 
 There is also the possibility to run the database in a docker container. In order to configure the mentioned database settings
-the [postgres docker image](https://hub.docker.com/_/postgres) provides certain enviroment variables. The command to initially start a docker container with
+the [postgres docker image](https://hub.docker.com/_/postgres) provides certain environment variables. The command to initially start a docker container with
 the right configuration for the server is as followed:
 
 `docker run --name postgres -p 5432:5432 -e POSTGRES_DB=hmserver -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=root -d postgres`
 
 Also the tool psql is very helpful for the development with postgres. It provides a connection to the database and therefore
-a CLI to run sql commands on the database. It's installed whith the postgres installation, but if you're using the docker
-image it's easier to install it seperatly. Under macOS homebrew provides the package "libq" which contains psql.
+a CLI to run sql commands on the database. It's usually installed with the postgres installation, but if you're using the docker
+image it's easier to install it seperatly. Under macOS homebrew provides the package "libq", which contains psql.
 
 > You may wonder about the name of the database. 
 > It is defined in the file at `animation-server/src/main/resources/META-INF/persistence.xml` which defines the JPA configuration. 
@@ -192,7 +193,7 @@ The Server is a Gradle project and thus has the normal directory structure.
 
 ## YAARS API
 
-The yaars REST API provides the ability to create, query and change the yaars related databases. The following part will 
+The yaars API provides the ability to create, query and change the yaars related databases. The following part will 
 walk you through the each endpoint and it's functionality.
 
 ### Database Scheme
@@ -225,6 +226,9 @@ The endpoints are organized as followed:
 ### STOMP over Websocket
 
 In order to communicate fluently with the clients, the Server provides three websocket endpoints accepting STOMP requests.
+STOMP is a communication protocol for websockets, you can read about it on the [offical website](http://stomp.github.io/stomp-specification-1.0.html).
+This Server implements endpoints which are able to accept STOMP 1.0 requests. But be aware that not every STOMP method is
+implemented. Only CONNECT, SEND, SUBSCRIBE, UNSUBSCRIBE and RECEIPT methods are accepted or send.
 
 The endpoints are:
 
