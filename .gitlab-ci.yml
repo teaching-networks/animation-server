@@ -1,38 +1,39 @@
 stages:
-- build
-- test
-- deploy
+  - build
+  - test
+  - deploy
 
 cache:
   paths:
-  - .gradle
+    - .gradle
 
 build:
   stage: build
   tags:
-  - www
+    - www
   artifacts:
     paths:
-    - build/libs/*.jar
+      - build/libs/*.jar
   script:
-  - ./gradlew -Dorg.gradle.java.home=/opt/jdk-12 shadowJar --refresh-dependencies
+    - ./gradlew -Dorg.gradle.java.home=/opt/jdk-12 shadowJar --refresh-dependencies
 
 test:
   stage: test
   tags:
-  - www
+    - www
   script:
-  - ./gradlew -Dorg.gradle.java.home=/opt/jdk-12 check
+    - ./gradlew -Dorg.gradle.java.home=/opt/jdk-12 check
+    - ./gradlew detekt
 
 deploy:
   stage: deploy
   tags:
-  - www
+    - www
   script:
-  - sudo systemctl stop hm-animations-server.service
-  - sudo cp -rf build/libs/animation-server.jar /opt/server.jar
-  - sudo systemctl restart hm-animations-server.service
+    - sudo systemctl stop hm-animations-server.service
+    - sudo cp -rf build/libs/animation-server.jar /opt/server.jar
+    - sudo systemctl restart hm-animations-server.service
   only:
-  - master
+    - master
   dependencies:
-  - build
+    - build
