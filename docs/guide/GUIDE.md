@@ -188,6 +188,7 @@ The Server is a Gradle project and thus has the normal directory structure.
     - .gitlab-ci.yml -> Gitlab build configuration
     - build.gradle -> Gradle build configuration + Dependencies
     - CHANGELOG.md -> Short notes about new features in releases
+    - detekt-config.yml -> Configuration file for detekt
     - README.md -> General information about the server project
 ```
 
