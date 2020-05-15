@@ -233,7 +233,7 @@ class HMAnimationServer {
                         ApiBuilder.path(":id") {
                             ApiBuilder.get(PollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                             ApiBuilder.delete(PollController::delete, roles(Roles.ADMINISTRATOR))
-                            ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSubscribe) }, roles(Roles.ANYONE))
+                            ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
                         }
                     }
 
