@@ -5,7 +5,6 @@ import javax.persistence.*
 @Entity
 @Table(name = "lectures")
 data class Lecture(
-
         @GeneratedValue(strategy = GenerationType.AUTO)
         @Id
         @Column(name = "lecture_id")

@@ -35,6 +35,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 import java.net.URI
 import java.nio.file.Paths
 
+
 class HMAnimationServer {
 
     fun start(args: Array<String>) {
@@ -88,7 +89,11 @@ class HMAnimationServer {
         sslContextFactory.setKeyStorePassword(keystorePassword)
 
         val pathToKeystore = Paths.get(URI.create(sslContextFactory.keyStorePath))
-        FileWatcher.onFileChange(pathToKeystore, Runnable { sslContextFactory.reload { println("Certificates reloaded") } })
+        FileWatcher.onFileChange(pathToKeystore, Runnable {
+            sslContextFactory.reload {
+                println("Certificates reloaded")
+            }
+        })
 
         return sslContextFactory
     }
@@ -113,6 +118,9 @@ class HMAnimationServer {
     private fun setupRoutes(app: Javalin, jwtProvider: JWTProvider) {
         val decodeHandler = JavalinJWT.createHeaderDecodeHandler(jwtProvider)
         app.before(decodeHandler)
+        app.wsBefore { ws ->
+            ws.onConnect { ctx -> ctx.send("CONNECTED\r\nversion:1.0\r\n\r\n\u0000") }
+        }
 
         app.routes {
             ApiBuilder.before("*") { ctx -> ctx.header("Access-Control-Allow-Credentials", "true") }
@@ -185,6 +193,7 @@ class HMAnimationServer {
                         ApiBuilder.path(":id") {
                             ApiBuilder.get(LectureController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                             ApiBuilder.delete(LectureController::delete, roles(Roles.ADMINISTRATOR))
+                            ApiBuilder.ws({ ws -> ws.onMessage(LectureController::onMessageSubscribe) }, roles(Roles.ANYONE))
                         }
                     }
 
@@ -193,10 +202,12 @@ class HMAnimationServer {
                         ApiBuilder.post(PollController::create, roles(Roles.ADMINISTRATOR))
                         ApiBuilder.get(PollController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         ApiBuilder.patch(PollController::update, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSend) }, roles(Roles.ANYONE))
 
                         ApiBuilder.path(":id") {
                             ApiBuilder.get(PollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                             ApiBuilder.delete(PollController::delete, roles(Roles.ADMINISTRATOR))
+                            ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSubscribe) }, roles(Roles.ANYONE))
                         }
                     }
 
@@ -204,6 +215,7 @@ class HMAnimationServer {
                     ApiBuilder.path(VotingController.PATH) {
                         ApiBuilder.path(":idP/:idA") {
                             ApiBuilder.patch(VotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                            ApiBuilder.ws({ ws -> ws.onMessage(VotingController::voteWs) }, roles(Roles.ANYONE))
                         }
                     }
                 }
