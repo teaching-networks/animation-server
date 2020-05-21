@@ -12,6 +12,7 @@ object VotingController {
 
     private val pollDAO = PollDAO()
     private val answerDAO = AnswerDAO()
+    private val votedIPs = mutableSetOf<String>()
 
     /**
      * Votes for a Poll. Needs the id of the poll as path parameter and the body must be in form:
@@ -21,10 +22,12 @@ object VotingController {
         val id = ctx.pathParam("idP").toLong()
         val poll = pollDAO.find(id)
         val votedAnswerId = ctx.pathParam("idA").toLong()
+        val remoteIP = ctx.req.remoteAddr
 
-        if (poll.active) {
+        if (poll.active && !votedIPs.contains(remoteIP)) {
             answerDAO.vote(votedAnswerId)
             STOMPPollSubscriptionManager.notifyAboutChange(pollDAO.find(id))
+            votedIPs.add(remoteIP)
             ctx.status(200)
         } else {
             ctx.status(400)
@@ -38,9 +41,11 @@ object VotingController {
         val id = ctx.pathParam("idP").toLong()
         val poll = pollDAO.find(id)
         val votedAnswerId = ctx.pathParam("idA").toLong()
+        val remoteIP = ctx.session.remoteAddress.hostString
 
-        if (poll.active) {
+        if (poll.active && !votedIPs.contains(remoteIP)) {
             answerDAO.vote(votedAnswerId)
+            votedIPs.add(remoteIP)
             STOMPPollSubscriptionManager.notifyAboutChange(pollDAO.find(id))
         }
     }
