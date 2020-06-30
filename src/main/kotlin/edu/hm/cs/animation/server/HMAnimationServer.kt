@@ -81,7 +81,7 @@ class HMAnimationServer {
 
                 config.accessManager { handler, ctx, permittedRoles ->
                     // Check if current request is a Websocket upgrade request or not
-                    if (ctx.req.getHeader("Upgrade") == "websocket") {
+                    if (ctx.req.getHeader("Upgrade") == "websocket" && !permittedRoles.contains(Roles.ANYONE)) {
                         val claimedRoleString = getTokenFromQueryPath(ctx)
                                 .flatMap(jwtProvider!!::validateToken)
                                 .get().getClaim("role").asString()

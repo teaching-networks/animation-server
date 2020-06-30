@@ -1,5 +1,11 @@
 # Changelog
 
+### 3.0
+- Added the yaars related endpoint
+- Added database Tables and relationships
+- Added REST endpoints for all Tables
+- Implemented websocket endpoints for yaars related communication 
+
 ### 2.1.0 - Maintenance Update
 - Migration from Java 8 to Java 13
 - Updated Javalin + all used dependencies
