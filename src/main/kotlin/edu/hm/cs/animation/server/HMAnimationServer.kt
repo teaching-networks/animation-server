@@ -5,6 +5,7 @@
 
 package edu.hm.cs.animation.server
 
+import SettingsController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.xenomachina.argparser.ArgParser
@@ -186,7 +187,8 @@ class HMAnimationServer {
 
                     // Animation properties controller
                     ApiBuilder.path(AnimationPropertiesController.PATH) {
-                        ApiBuilder.get(AnimationPropertiesController::getProperties, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                        ApiBuilder.get(AnimationPropertiesController::getProperties,
+                                roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         ApiBuilder.post(AnimationPropertiesController::setValue, roles(Roles.ADMINISTRATOR))
                     }
                     ApiBuilder.path(":id") {
