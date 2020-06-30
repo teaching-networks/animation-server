@@ -18,10 +18,14 @@ import edu.hm.cs.animation.server.user.UserController
 import edu.hm.cs.animation.server.user.model.User
 import edu.hm.cs.animation.server.util.cmdargs.CMDLineArgumentParser
 import edu.hm.cs.animation.server.util.file.FileWatcher
+import edu.hm.cs.animation.server.yaars.lecture.LectureController
+import edu.hm.cs.animation.server.yaars.poll.PollController
+import edu.hm.cs.animation.server.yaars.vote.VotingController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.core.security.Role
 import io.javalin.core.security.SecurityUtil.roles
+import io.javalin.http.Context
 import javalinjwt.JWTAccessManager
 import javalinjwt.JWTGenerator
 import javalinjwt.JWTProvider
@@ -32,8 +36,11 @@ import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import java.net.URI
 import java.nio.file.Paths
+import java.util.*
 
 class HMAnimationServer {
+
+    var jwtProvider: JWTProvider? = null
 
     fun start(args: Array<String>) {
         ArgParser(args).parseInto(::CMDLineArgumentParser).run {
@@ -70,13 +77,35 @@ class HMAnimationServer {
 
                 // Setup access manager to handle JSON Web Token authentication
                 val roleMapping = hashMapOf<String, Role>()
-                roleMapping.put(Roles.ADMINISTRATOR.name, Roles.ADMINISTRATOR)
-                roleMapping.put(Roles.ANYONE.name, Roles.ANYONE)
-                config.accessManager(JWTAccessManager("role", roleMapping, Roles.ANYONE))
+                roleMapping[Roles.ADMINISTRATOR.name] = Roles.ADMINISTRATOR
+                roleMapping[Roles.ANYONE.name] = Roles.ANYONE
+
+                config.accessManager { handler, ctx, permittedRoles ->
+                    // Check if current request is a Websocket upgrade request or not
+                    if (ctx.req.getHeader("Upgrade") == "websocket" && !permittedRoles.contains(Roles.ANYONE)) {
+                        val claimedRoleString = getTokenFromQueryPath(ctx)
+                                .flatMap(jwtProvider!!::validateToken)
+                                .get().getClaim("role").asString()
+
+                        val userRole: Role = roleMapping[claimedRoleString]!!
+                        if (permittedRoles.contains(userRole)) {
+                            handler.handle(ctx)
+                        } else {
+                            ctx.status(401).result("Unauthorized")
+                        }
+                    } else {
+                        JWTAccessManager("role", roleMapping, Roles.ANYONE)
+                                .manage(handler, ctx, permittedRoles)
+                    }
+                }
             }
 
             setupRoutes(app.start(), setupJWTProvider(jwtSalt))
         }
+    }
+
+    private fun getTokenFromQueryPath(ctx: Context): Optional<String> {
+        return Optional.ofNullable(ctx.queryParam("Authorization"))
     }
 
     private fun setupSslContextFactory(keystorePath: String, keystorePassword: String): SslContextFactory {
@@ -109,12 +138,16 @@ class HMAnimationServer {
 
         val verifier = JWT.require(algorithm).build()
 
-        return JWTProvider(algorithm, generator, verifier)
+        this.jwtProvider = JWTProvider(algorithm, generator, verifier)
+        return this.jwtProvider!!
     }
 
     private fun setupRoutes(app: Javalin, jwtProvider: JWTProvider) {
         val decodeHandler = JavalinJWT.createHeaderDecodeHandler(jwtProvider)
         app.before(decodeHandler)
+        app.wsBefore { ws ->
+            ws.onConnect { ctx -> ctx.send("CONNECTED\r\nversion:1.0\r\n\r\n\u0000") }
+        }
 
         app.routes {
             ApiBuilder.before("*") { ctx -> ctx.header("Access-Control-Allow-Credentials", "true") }
@@ -176,15 +209,42 @@ class HMAnimationServer {
                     }
                 }
 
-                // Settings controller
-                ApiBuilder.path(SettingsController.PATH) {
-                    ApiBuilder.get(SettingsController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
-                    ApiBuilder.post(SettingsController::create, roles(Roles.ADMINISTRATOR))
-                    ApiBuilder.patch(SettingsController::update, roles(Roles.ADMINISTRATOR))
+                // YAARS controller
+                ApiBuilder.path("yaars") {
 
-                    ApiBuilder.path(":key") {
-                        ApiBuilder.get(SettingsController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
-                        ApiBuilder.delete(SettingsController::delete, roles(Roles.ADMINISTRATOR))
+                    // Lecture controller
+                    ApiBuilder.path(LectureController.PATH) {
+                        ApiBuilder.post(LectureController::create, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.get(LectureController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                        ApiBuilder.patch(LectureController::update, roles(Roles.ADMINISTRATOR))
+
+                        ApiBuilder.path(":id") {
+                            ApiBuilder.get(LectureController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                            ApiBuilder.delete(LectureController::delete, roles(Roles.ADMINISTRATOR))
+                            ApiBuilder.ws({ ws -> ws.onMessage(LectureController::onMessageSubscribe) }, roles(Roles.ANYONE))
+                        }
+                    }
+
+                    // Poll controller
+                    ApiBuilder.path(PollController.PATH) {
+                        ApiBuilder.post(PollController::create, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.get(PollController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                        ApiBuilder.patch(PollController::update, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSend) }, roles(Roles.ADMINISTRATOR))
+
+                        ApiBuilder.path(":id") {
+                            ApiBuilder.get(PollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                            ApiBuilder.delete(PollController::delete, roles(Roles.ADMINISTRATOR))
+                            ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
+                        }
+                    }
+
+                    // Voting controller
+                    ApiBuilder.path(VotingController.PATH) {
+                        ApiBuilder.path(":idP/:idA") {
+                            ApiBuilder.patch(VotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                            ApiBuilder.ws({ ws -> ws.onMessage(VotingController::voteWs) }, roles(Roles.ANYONE))
+                        }
                     }
                 }
 

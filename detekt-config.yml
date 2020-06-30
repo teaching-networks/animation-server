@@ -76,6 +76,7 @@ complexity:
   LongMethod:
     active: true
     threshold: 60
+    excludes: ['**HMAnimationServer.kt']
   LongParameterList:
     active: true
     functionThreshold: 6
@@ -520,7 +521,7 @@ style:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/*.Test.kt', '**/*.Spec.kt', '**/*.Spek.kt']
     # Also exclude all HTTP status codes that are used.
-    ignoreNumbers: ['-1', '0', '1', '2', '200', '404', '400', '500']
+    ignoreNumbers: ['-1', '0', '1', '2', '200', '404', '400', '401', '500']
     ignoreHashCodeFunction: true
     ignorePropertyDeclaration: false
     ignoreLocalVariableDeclaration: false
@@ -539,7 +540,8 @@ style:
     excludeImportStatements: true
     excludeCommentStatements: false
     # Exclude both because it doesn't make sense to cut in there
-    excludes: ['**CMDLineArgumentParser.kt', '**AnimationPropertyDAO.kt']
+    excludes: ['**CMDLineArgumentParser.kt', '**AnimationPropertyDAO.kt', '**HMAnimationServer.kt', '**FileWatcher.kt',
+               '**AuthController.kt', '**UserDAO.kt']
   MayBeConst:
     active: true
   ModifierOrder:
