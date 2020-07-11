@@ -80,7 +80,11 @@ class HMAnimationServer {
                 roleMapping[Roles.ANYONE.name] = Roles.ANYONE
 
                 config.accessManager { handler, ctx, permittedRoles ->
-                    // Check if current request is a Websocket upgrade request or not
+                    // Check if current request is a Websocket upgrade request or not and set the right response header
+                    if (ctx.req.getHeader("Upgrade") == "websocket") {
+                        ctx.header("Sec-WebSocket-Protocol", "v10.stomp")
+                    }
+                    // if the request is also to a Admin endpoint, check the token
                     if (ctx.req.getHeader("Upgrade") == "websocket" && !permittedRoles.contains(Roles.ANYONE)) {
                         val claimedRoleString = getTokenFromQueryPath(ctx)
                                 .flatMap(jwtProvider!!::validateToken)
