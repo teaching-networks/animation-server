@@ -82,7 +82,7 @@ class HMAnimationServer {
 
                 config.accessManager { handler, ctx, permittedRoles ->
                     // Check if current request is a Websocket upgrade request or not and set the right response header
-                    if (ctx.req.getHeader("Upgrade") == "websocket") {
+                    if (ctx.req.getHeader("Upgrade") == "websocket" && ctx.req.getHeader("Sec-WebSocket-Protocol") != null) {
                         ctx.header("Sec-WebSocket-Protocol", "v10.stomp")
                     }
                     // if the request is also to a Admin endpoint, check the token
