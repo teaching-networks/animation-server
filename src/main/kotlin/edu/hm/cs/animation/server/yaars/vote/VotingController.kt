@@ -43,7 +43,6 @@ object VotingController {
         val id = ctx.pathParam("idP").toLong()
         val poll = pollDAO.find(id)
         val votedAnswerId = ctx.pathParam("idA").toLong()
-        val remoteIP = ctx.session.remoteAddress.hostString
 
         if (poll.active) {
             answerDAO.vote(votedAnswerId)

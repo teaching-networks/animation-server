@@ -17,25 +17,11 @@ import javax.persistence.*
 @Table(name = "polls")
 data class Poll(
 
-        /**
-         * Id of the Entity.
-         */
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        @Column(name = "poll_id")
-        val id: Long? = null,
+        override val id: Long,
 
-        /**
-         * Main question asked in the poll.
-         */
-        @Column(nullable = false, length = 1000)
-        var question: String = "",
+        override var question: String,
 
-        /**
-         * Related Lecture (every poll has to be related to one Lecture (ManyToOne)).
-         */
-        @ManyToOne
-        var lecture: Lecture,
+        override var lecture: Lecture,
 
         /**
          * List of Available Answers. Every poll is able to havebetween 2 and 5 questions (OneToMany).
@@ -49,4 +35,4 @@ data class Poll(
          */
         @Column(nullable = false)
         var active: Boolean = false
-)
+) : YaarsPoll(id, question, lecture)
