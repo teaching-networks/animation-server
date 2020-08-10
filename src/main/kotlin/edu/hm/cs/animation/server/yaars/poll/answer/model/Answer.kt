@@ -5,9 +5,11 @@
 
 package edu.hm.cs.animation.server.yaars.poll.answer.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import edu.hm.cs.animation.server.yaars.poll.model.Poll
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.ManyToOne
 import javax.persistence.Table
 
 /**
@@ -19,7 +21,12 @@ class Answer(
 
         answerId: Long,
 
-        relatedPoll: Poll?,
+        /**
+         * The related Poll in which the answer is available (ManyToOne).
+         */
+        @ManyToOne
+        @JsonBackReference
+        var relatedPoll: Poll? = null,
 
         /**
          * Text of the answer.
@@ -35,4 +42,4 @@ class Answer(
 
         @Column(name = "times_voted")
         var timesVoted: Int = 0
-) : YaarsAnswer(answerId, relatedPoll)
+) : YaarsAnswer(answerId)

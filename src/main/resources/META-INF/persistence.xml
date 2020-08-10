@@ -13,6 +13,8 @@
         <class>edu.hm.cs.animation.server.yaars.lecture.model.Lecture</class>
         <class>edu.hm.cs.animation.server.yaars.poll.model.Poll</class>
         <class>edu.hm.cs.animation.server.yaars.poll.answer.model.Answer</class>
+        <class>edu.hm.cs.animation.server.yaars.poll.answer.model.OpenAnswer</class>
+        <class>edu.hm.cs.animation.server.yaars.poll.model.OpenQuestionPoll</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>

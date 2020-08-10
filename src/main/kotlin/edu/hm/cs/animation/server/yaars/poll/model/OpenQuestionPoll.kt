@@ -1,22 +1,16 @@
-/*
- * Copyright (c) Munich University of Applied Sciences - https://hm.edu/
- * Licensed under GNU General Public License 3 (See LICENSE.md in the repositories root)
- */
-
 package edu.hm.cs.animation.server.yaars.poll.model
 
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import edu.hm.cs.animation.server.yaars.lecture.model.Lecture
-import edu.hm.cs.animation.server.yaars.poll.answer.model.Answer
+import edu.hm.cs.animation.server.yaars.poll.answer.model.OpenAnswer
 import javax.persistence.*
 
 /**
- * Representation of a Poll.
+ * Representation of an open question poll.
  */
 @Entity
-@Table(name = "polls")
-class Poll(
-
+@Table(name = "openquestionpolls")
+class OpenQuestionPoll(
         id: Long,
 
         question: String,
@@ -30,7 +24,5 @@ class Poll(
          */
         @OneToMany(cascade = arrayOf(CascadeType.ALL), mappedBy = "relatedPoll", fetch = FetchType.EAGER)
         @JsonManagedReference
-        var answers: List<Answer>
-
-
+        var answers: Set<OpenAnswer>
 ) : YaarsPoll(id, question, lecture, active)

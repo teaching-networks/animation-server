@@ -7,7 +7,7 @@ import javax.persistence.*
  * This represents a general Poll. Every concrete Poll has at least those attributes, but may define more.
  */
 @MappedSuperclass
-abstract class YaarsPoll(
+open class YaarsPoll(
         /**
          * Id of the Entity.
          */
@@ -26,5 +26,11 @@ abstract class YaarsPoll(
          * Related Lecture (every poll has to be related to one Lecture (ManyToOne)).
          */
         @ManyToOne
-        var lecture: Lecture
+        var lecture: Lecture,
+
+        /**
+         * Current state of the poll (active or inactive).
+         */
+        @Column(nullable = false)
+        var active: Boolean = false
 )

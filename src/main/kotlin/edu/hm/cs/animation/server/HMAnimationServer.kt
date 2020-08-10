@@ -5,7 +5,6 @@
 
 package edu.hm.cs.animation.server
 
-import SettingsController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.xenomachina.argparser.ArgParser
@@ -19,6 +18,7 @@ import edu.hm.cs.animation.server.user.model.User
 import edu.hm.cs.animation.server.util.cmdargs.CMDLineArgumentParser
 import edu.hm.cs.animation.server.util.file.FileWatcher
 import edu.hm.cs.animation.server.yaars.lecture.LectureController
+import edu.hm.cs.animation.server.yaars.poll.OpenPollController
 import edu.hm.cs.animation.server.yaars.poll.PollController
 import edu.hm.cs.animation.server.yaars.vote.VotingController
 import io.javalin.Javalin
@@ -240,6 +240,18 @@ class HMAnimationServer {
                             ApiBuilder.get(PollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                             ApiBuilder.delete(PollController::delete, roles(Roles.ADMINISTRATOR))
                             ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
+                        }
+                    }
+
+                    // Open Poll controller
+                    ApiBuilder.path(OpenPollController.PATH) {
+                        ApiBuilder.post(OpenPollController::create, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.get(OpenPollController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                        ApiBuilder.patch(OpenPollController::update, roles(Roles.ADMINISTRATOR))
+
+                        ApiBuilder.path(":id") {
+                            ApiBuilder.get(OpenPollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                            ApiBuilder.delete(OpenPollController::delete, roles(Roles.ADMINISTRATOR))
                         }
                     }
 
