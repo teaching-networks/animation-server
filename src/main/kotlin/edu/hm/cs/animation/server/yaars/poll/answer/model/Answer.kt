@@ -5,24 +5,21 @@
 
 package edu.hm.cs.animation.server.yaars.poll.answer.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import edu.hm.cs.animation.server.yaars.poll.model.Poll
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Table
 
 /**
  * Representation of a Answer to an asked question in a poll.
  */
 @Entity
 @Table(name = "answers")
-data class Answer(
+class Answer(
 
-        /**
-         * Id of the Entity
-         */
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        @Column(name = "answer_id")
-        val answerId: Long? = null,
+        answerId: Long,
+
+        relatedPoll: Poll?,
 
         /**
          * Text of the answer.
@@ -36,13 +33,6 @@ data class Answer(
         @Column(nullable = false)
         var correct: Boolean = false,
 
-        /**
-         * The related Poll in which the answer is available (ManyToOne).
-         */
-        @ManyToOne
-        @JsonBackReference
-        var relatedPoll: Poll? = null,
-
         @Column(name = "times_voted")
         var timesVoted: Int = 0
-)
+) : YaarsAnswer(answerId, relatedPoll)

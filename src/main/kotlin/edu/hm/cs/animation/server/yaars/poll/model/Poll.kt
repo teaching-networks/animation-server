@@ -15,16 +15,16 @@ import javax.persistence.*
  */
 @Entity
 @Table(name = "polls")
-data class Poll(
+class Poll(
 
-        override val id: Long,
+        id: Long,
 
-        override var question: String,
+        question: String,
 
-        override var lecture: Lecture,
+        lecture: Lecture,
 
         /**
-         * List of Available Answers. Every poll is able to havebetween 2 and 5 questions (OneToMany).
+         * List of Available Answers. Every poll is able to have between 2 and 5 questions (OneToMany).
          */
         @OneToMany(cascade = arrayOf(CascadeType.ALL), mappedBy = "relatedPoll", fetch = FetchType.EAGER)
         @JsonManagedReference
