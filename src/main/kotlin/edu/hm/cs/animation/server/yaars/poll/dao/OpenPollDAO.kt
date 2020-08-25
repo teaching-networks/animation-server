@@ -52,6 +52,11 @@ class OpenPollDAO {
             updatedPoll.lecture = poll.lecture
             updatedPoll.question = poll.question
 
+            // fixes related poll field
+            for (answer in updatedPoll.answers) {
+                answer.relatedPoll = poll
+            }
+
             it.merge(updatedPoll)
         }
     }
