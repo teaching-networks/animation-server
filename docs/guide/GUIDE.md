@@ -207,6 +207,8 @@ The Scheme is as followed:
 
 ![Database Scheme](res/database_scheeme.png)
 
+The image shows the tables for the rest of the server as well (animation groups, user management, etc). 
+
 ### REST API
 
 Each entity has its own rest endpoint which is implementing the CRUD interface (src/main/kotlin/edu.hm.cs.animation.server/util/rest).
