@@ -24,5 +24,5 @@ class OpenQuestionPoll(
          */
         @OneToMany(cascade = arrayOf(CascadeType.ALL), mappedBy = "relatedPoll", fetch = FetchType.EAGER)
         @JsonManagedReference
-        var answers: Set<OpenAnswer>
+        var answers: MutableSet<OpenAnswer>
 ) : YaarsPoll(id, question, lecture, active)

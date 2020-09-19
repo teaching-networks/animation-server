@@ -20,7 +20,8 @@ import edu.hm.cs.animation.server.util.file.FileWatcher
 import edu.hm.cs.animation.server.yaars.lecture.LectureController
 import edu.hm.cs.animation.server.yaars.poll.OpenPollController
 import edu.hm.cs.animation.server.yaars.poll.PollController
-import edu.hm.cs.animation.server.yaars.vote.VotingController
+import edu.hm.cs.animation.server.yaars.vote.OpenPollVotingController
+import edu.hm.cs.animation.server.yaars.vote.PollVotingController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.core.security.Role
@@ -241,6 +242,14 @@ class HMAnimationServer {
                             ApiBuilder.delete(PollController::delete, roles(Roles.ADMINISTRATOR))
                             ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
                         }
+
+                        // Voting controller
+                        ApiBuilder.path(PollVotingController.PATH) {
+                            ApiBuilder.path(":idP/:idA") {
+                                ApiBuilder.patch(PollVotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                                ApiBuilder.ws({ ws -> ws.onMessage(PollVotingController::voteWs) }, roles(Roles.ANYONE))
+                            }
+                        }
                     }
 
                     // Open Poll controller
@@ -253,15 +262,15 @@ class HMAnimationServer {
                             ApiBuilder.get(OpenPollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                             ApiBuilder.delete(OpenPollController::delete, roles(Roles.ADMINISTRATOR))
                         }
-                    }
 
-                    // Voting controller
-                    ApiBuilder.path(VotingController.PATH) {
-                        ApiBuilder.path(":idP/:idA") {
-                            ApiBuilder.patch(VotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
-                            ApiBuilder.ws({ ws -> ws.onMessage(VotingController::voteWs) }, roles(Roles.ANYONE))
+                        // Voting Controller
+                        ApiBuilder.path(OpenPollVotingController.PATH) {
+                            ApiBuilder.path(":idP") {
+                                ApiBuilder.patch(OpenPollVotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                            }
                         }
                     }
+
                 }
 
             }

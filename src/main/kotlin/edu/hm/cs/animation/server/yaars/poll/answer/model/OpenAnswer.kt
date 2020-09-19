@@ -27,5 +27,11 @@ class OpenAnswer(
          * Text of the answer.
          */
         @Column(nullable = false, length = 1000)
-        var text: String = ""
+        var text: String = "",
+
+        /**
+         * How often the answer got mentioned.
+         */
+        @Column(nullable = false)
+        var timesMentioned: Long
 ) : YaarsAnswer(answerId)

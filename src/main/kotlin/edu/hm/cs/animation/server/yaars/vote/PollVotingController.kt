@@ -11,7 +11,7 @@ import edu.hm.cs.animation.server.yaars.poll.dao.PollDAO
 import io.javalin.http.Context
 import io.javalin.websocket.WsMessageContext
 
-object VotingController {
+object PollVotingController {
 
     const val PATH = "vote"
 
@@ -19,8 +19,8 @@ object VotingController {
     private val answerDAO = AnswerDAO()
 
     /**
-     * Votes for a Poll. Needs the id of the poll as path parameter and the body must be in form:
-     * "id": x where x stands for the answerId of the question you want to vote for
+     * Votes for a Poll. Needs the id of the poll as the first path parameter and the id of the answer as the second
+     * path parameter.
      */
     fun vote(ctx: Context) {
         val id = ctx.pathParam("idP").toLong()
