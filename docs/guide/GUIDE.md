@@ -201,7 +201,11 @@ walk you through each endpoint and it's functionality.
 
 The database scheme for yaars is pretty basic and consists of three entities: lectures, polls and answers. The general idea is
 that a poll is related to a certain lecture (in order to search for all open polls for a specific lecture). A poll has a question and 
-multiple answers which can be correct or not and which have a certain number which represents how often somebody voted for it.
+multiple answers which can be correct or not and which have a certain number which represents how often somebody voted for it. The polls
+are separated into two types. The first one is the classic poll with a question, and multiple, predefined answers. The answers have a status
+which indicates whether they're correct or not. The second type is the so called "OpenQuestion" Poll. It's a poll with an openly asked question.
+The answer type differs because the user could answer with any text they want. The answer therefore has a count how often this
+specific text was answered. 
 
 The Scheme is as followed:
 
@@ -219,12 +223,27 @@ The endpoints are organized as followed:
 
 ```
 - /api/yaars -> All yaars related endpoints
-    - /poll -> Handels GET, POST, PATCH for polls
-           - /:id -> Handels GET and DELETE for poll with id = :id
-    - /lecture -> Handels GET, POST, PATCH for lectures
+    - /poll -> Handles GET, POST, PATCH for polls
+           - /:id -> Handles GET and DELETE for poll with id = :id
+           - /vote/:idPoll/:idAnswer -> Handels voting functionality. Just handels PATCH requests. Counts as a vote for Poll with idPoll and Answer with idAnswer
+    - /openpoll -> Handles GET, POST, PATCH for openpolls
+           - /:id -> Handles GET and DELETE for poll with id = :id
+           - /vote/:idPoll -> Handels voting functionality. Just handels PATCH requests. Counts as a vote for Poll with idPoll. The answer is then embedded in the body.
+    - /lecture -> Handles GET, POST, PATCH for lectures
            - /:id -> Handels GET and DELETE for lectures with id = :id
-    - /vote/:idPoll/:idAnser -> Handels voting functionality. Just handels GET requests. Counts as a vote for Poll with idPoll and Anser with idAnswer
+    
 ```
+
+#### Voting via the API
+
+Voting via the REST Endpoints is also supported. For the normal poll, this is done via a ```PATCH``` request to the endpoint 
+````/api/yaars/poll/vote/:idPoll/:idAnswer````. As the answers are predefined, this leads to an increase of the voting count for the answer with 
+the specified id.
+
+Voting for an open question poll is a bit more complicated as the answers are not predefined but given by the user. In general voting is also done 
+with a ```PATCH``` request to the endpoint ```/api/yaars/openpoll/vote/:idPoll```. But in this case the text of the answer is embedded in the Body of
+the HTTP request in form of a JSON with the field `````"text": "Answer text"`````. In case the poll already had such an answer the ```timesMentioned``` field
+is increased by one. In the other case a new answer is created and attached to the current list of answers.  
 
 ### STOMP over Websocket
 
@@ -239,8 +258,8 @@ The endpoints are:
 - /api/yaars
         - /poll -> Handels the creation of polls over stomp (SEND Method)
             - /:id -> Handels subscriptions to polls over stomp (SUBSCRIBE / UNSUBSCRIBE Method)
-        - /lecture/:id -> Handels subscriptions to all open polls for a certain lecture. The server will send updates whenever a poll is switched active (SUBSCRIBE / UNSUBSCRIBE method)
-        - /vote/:idPoll/:idAnswer -> Handels voting over STOMP, votes for an answer with idPoll and idAnswer (SEND Method)
+            - /vote/:idPoll/:idAnswer -> Handels voting over STOMP, votes for an answer with idPoll and idAnswer (SEND Method)
+        - /lecture/:id -> Handels subscriptions to all open polls for a certain lecture. The server will send updates whenever a poll is switched active (SUBSCRIBE / UNSUBSCRIBE method)    
 ``` 
 
 The idea how the Websocket functionality should be used is illustrate in this diagram: 
