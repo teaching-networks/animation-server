@@ -33,13 +33,13 @@ object OpenPollVotingController {
 
         // checks if this specific poll already has an answer with text = text
         val alreadyVoted = poll.answers.filter { openAnswer ->
-            openAnswer.text == text
+            openAnswer.text.toLowerCase().equals(text?.toLowerCase())
         }.size == 1
 
         // if the set contains such an answer we vote for it, otherwise a new answer is created and the poll is updated
         if (alreadyVoted) {
             val answer = poll.answers.filter { openAnswer ->
-                openAnswer.text == text
+                openAnswer.text.toLowerCase().equals(text?.toLowerCase())
             }[0].answerId
             openAnswerDAO.vote(answer)
         } else {
