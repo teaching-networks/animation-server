@@ -1,5 +1,6 @@
 package edu.hm.cs.animation.server.yaars.vote
 
+import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPOpenPollSubscriptionManager
 import edu.hm.cs.animation.server.yaars.poll.answer.dao.OpenAnswerDAO
 import edu.hm.cs.animation.server.yaars.poll.answer.model.OpenAnswer
 import edu.hm.cs.animation.server.yaars.poll.dao.OpenPollDAO
@@ -47,5 +48,6 @@ object OpenPollVotingController {
             poll.answers.add(newAnswer)
             openPollDAO.update(poll)
         }
+        STOMPOpenPollSubscriptionManager.notifyAboutChange(openPollDAO.find(id))
     }
 }

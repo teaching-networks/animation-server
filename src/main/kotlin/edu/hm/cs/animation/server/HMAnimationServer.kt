@@ -257,10 +257,12 @@ class HMAnimationServer {
                         ApiBuilder.post(OpenPollController::create, roles(Roles.ADMINISTRATOR))
                         ApiBuilder.get(OpenPollController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                         ApiBuilder.patch(OpenPollController::update, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.ws({ ws -> ws.onMessage(OpenPollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
 
                         ApiBuilder.path(":id") {
                             ApiBuilder.get(OpenPollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                             ApiBuilder.delete(OpenPollController::delete, roles(Roles.ADMINISTRATOR))
+                            ApiBuilder.ws({ ws -> ws.onMessage(OpenPollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
                         }
 
                         // Voting Controller
