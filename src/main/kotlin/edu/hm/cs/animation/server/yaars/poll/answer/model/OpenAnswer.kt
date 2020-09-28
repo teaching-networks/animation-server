@@ -1,23 +1,18 @@
-/*
- * Copyright (c) Munich University of Applied Sciences - https://hm.edu/
- * Licensed under GNU General Public License 3 (See LICENSE.md in the repositories root)
- */
-
 package edu.hm.cs.animation.server.yaars.poll.answer.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
-import edu.hm.cs.animation.server.yaars.poll.model.Poll
+import edu.hm.cs.animation.server.yaars.poll.model.OpenQuestionPoll
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.ManyToOne
 import javax.persistence.Table
 
 /**
- * Representation of a Answer to an asked question in a poll.
+ * Representation of am Answer to an asked open question in an open question poll.
  */
 @Entity
-@Table(name = "answers")
-class Answer(
+@Table(name = "openAnswers")
+class OpenAnswer(
 
         answerId: Long,
 
@@ -26,7 +21,7 @@ class Answer(
          */
         @ManyToOne
         @JsonBackReference
-        var relatedPoll: Poll? = null,
+        var relatedPoll: OpenQuestionPoll? = null,
 
         /**
          * Text of the answer.
@@ -35,11 +30,8 @@ class Answer(
         var text: String = "",
 
         /**
-         * Is the answer correct?
+         * How often the answer got mentioned.
          */
         @Column(nullable = false)
-        var correct: Boolean = false,
-
-        @Column(name = "times_voted")
-        var timesVoted: Int = 0
+        var timesMentioned: Long
 ) : YaarsAnswer(answerId)

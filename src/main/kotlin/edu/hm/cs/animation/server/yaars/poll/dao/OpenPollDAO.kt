@@ -1,23 +1,16 @@
-/*
- * Copyright (c) Munich University of Applied Sciences - https://hm.edu/
- * Licensed under GNU General Public License 3 (See LICENSE.md in the repositories root)
- */
-
 package edu.hm.cs.animation.server.yaars.poll.dao
 
 import edu.hm.cs.animation.server.util.PersistenceUtil
-import edu.hm.cs.animation.server.yaars.poll.model.Poll
+import edu.hm.cs.animation.server.yaars.poll.model.OpenQuestionPoll
 
-/**
- * DAO which manages the Poll Entity.
- */
-class PollDAO {
+
+class OpenPollDAO {
 
     /**
      * Creates a new poll in the database.
      * @param poll that should be created.
      */
-    fun create(poll: Poll): Poll {
+    fun create(poll: OpenQuestionPoll): OpenQuestionPoll {
         return PersistenceUtil.transaction {
             for (elem in poll.answers) {
                 elem.relatedPoll = poll
@@ -31,18 +24,19 @@ class PollDAO {
      * Finds a specific poll.
      * @param id of the poll.
      */
-    fun find(id: Long): Poll {
+    fun find(id: Long): OpenQuestionPoll {
         return PersistenceUtil.transaction {
-            return@transaction it.find(Poll::class.java, id)
+            return@transaction it.find(OpenQuestionPoll::class.java, id)
         }
     }
 
     /**
      * Returns all polls from the Database.
      */
-    fun findAll(): List<Poll> {
+    fun findAll(): List<OpenQuestionPoll> {
         return PersistenceUtil.transaction {
-            return@transaction it.createQuery("SELECT p FROM Poll p", Poll::class.java).resultList!!
+            return@transaction it.createQuery("SELECT p FROM OpenQuestionPoll p",
+                    OpenQuestionPoll::class.java).resultList!!
         }
     }
 
@@ -50,9 +44,9 @@ class PollDAO {
      * Updates a specific poll.
      * @param poll the updated poll.
      */
-    fun update(poll: Poll) {
+    fun update(poll: OpenQuestionPoll) {
         PersistenceUtil.transaction {
-            val updatedPoll = it.find(Poll::class.java, poll.id)
+            val updatedPoll = it.find(OpenQuestionPoll::class.java, poll.id)
             updatedPoll.active = poll.active
             updatedPoll.answers = poll.answers
             updatedPoll.lecture = poll.lecture
@@ -73,7 +67,7 @@ class PollDAO {
      */
     fun remove(id: Long) {
         PersistenceUtil.transaction {
-            val poll = it.find(Poll::class.java, id)
+            val poll = it.find(OpenQuestionPoll::class.java, id)
 
             it.remove(poll)
         }
@@ -84,9 +78,9 @@ class PollDAO {
      * @param id of the poll.
      * @param status the new activity status.
      */
-    fun setActive(id: Long, status: Boolean): Poll {
+    fun setActive(id: Long, status: Boolean): OpenQuestionPoll {
         return PersistenceUtil.transaction {
-            val poll = it.find(Poll::class.java, id)
+            val poll = it.find(OpenQuestionPoll::class.java, id)
             poll.active = status
 
             return@transaction it.merge(poll)
