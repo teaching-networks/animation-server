@@ -1,7 +1,12 @@
 # Changelog
 
 
-### 3.0
+### 3.1.0
+- Added the open-question-poll functionality.
+- Rearranged database model to have the superclasses YAARSPoll and YAARSAnswer for easily adding new Poll models.
+- Added the endpoint for the open-question-poll (own model and dao, own subscription manager).
+
+### 3.0.0
 - Added the yaars related endpoint
 - Added database Tables and relationships
 - Added REST endpoints for all Tables
