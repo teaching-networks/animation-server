@@ -11,28 +11,25 @@ import edu.hm.cs.animation.server.yaars.poll.dao.PollDAO
 import io.javalin.http.Context
 import io.javalin.websocket.WsMessageContext
 
-object VotingController {
+object PollVotingController {
 
     const val PATH = "vote"
 
     private val pollDAO = PollDAO()
     private val answerDAO = AnswerDAO()
-    private val votedIPs = mutableSetOf<String>()
 
     /**
-     * Votes for a Poll. Needs the id of the poll as path parameter and the body must be in form:
-     * "id": x where x stands for the answerId of the question you want to vote for
+     * Votes for a Poll. Needs the id of the poll as the first path parameter and the id of the answer as the second
+     * path parameter.
      */
     fun vote(ctx: Context) {
         val id = ctx.pathParam("idP").toLong()
         val poll = pollDAO.find(id)
         val votedAnswerId = ctx.pathParam("idA").toLong()
-        val remoteIP = ctx.req.remoteAddr
 
-        if (poll.active && !votedIPs.contains(remoteIP)) {
+        if (poll.active) {
             answerDAO.vote(votedAnswerId)
             STOMPPollSubscriptionManager.notifyAboutChange(pollDAO.find(id))
-            votedIPs.add(remoteIP)
             ctx.status(200)
         } else {
             ctx.status(400)
@@ -46,11 +43,9 @@ object VotingController {
         val id = ctx.pathParam("idP").toLong()
         val poll = pollDAO.find(id)
         val votedAnswerId = ctx.pathParam("idA").toLong()
-        val remoteIP = ctx.session.remoteAddress.hostString
 
-        if (poll.active && !votedIPs.contains(remoteIP)) {
+        if (poll.active) {
             answerDAO.vote(votedAnswerId)
-            votedIPs.add(remoteIP)
             STOMPPollSubscriptionManager.notifyAboutChange(pollDAO.find(id))
         }
     }

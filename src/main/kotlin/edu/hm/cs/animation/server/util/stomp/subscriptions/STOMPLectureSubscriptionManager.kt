@@ -5,13 +5,13 @@
 
 package edu.hm.cs.animation.server.util.stomp.subscriptions
 
-import edu.hm.cs.animation.server.yaars.poll.model.Poll
+import edu.hm.cs.animation.server.yaars.poll.model.YaarsPoll
 
 /**
  * A Subscription Manager for lectures.
  */
-object STOMPLectureSubscriptionManager : STOMPSubscriptionManager<Poll>() {
-    override fun notifyAboutChange(changedObject: Poll) {
+object STOMPLectureSubscriptionManager : STOMPSubscriptionManager<YaarsPoll>() {
+    override fun notifyAboutChange(changedObject: YaarsPoll) {
         for (subscriber in subscribers) {
             if (subscriber.third == changedObject.lecture.id) {
                 factorAndSendResponse(subscriber, changedObject)

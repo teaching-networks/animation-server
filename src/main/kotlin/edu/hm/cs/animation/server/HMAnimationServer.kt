@@ -5,7 +5,6 @@
 
 package edu.hm.cs.animation.server
 
-import SettingsController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.xenomachina.argparser.ArgParser
@@ -19,8 +18,10 @@ import edu.hm.cs.animation.server.user.model.User
 import edu.hm.cs.animation.server.util.cmdargs.CMDLineArgumentParser
 import edu.hm.cs.animation.server.util.file.FileWatcher
 import edu.hm.cs.animation.server.yaars.lecture.LectureController
+import edu.hm.cs.animation.server.yaars.poll.OpenPollController
 import edu.hm.cs.animation.server.yaars.poll.PollController
-import edu.hm.cs.animation.server.yaars.vote.VotingController
+import edu.hm.cs.animation.server.yaars.vote.OpenPollVotingController
+import edu.hm.cs.animation.server.yaars.vote.PollVotingController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.core.security.Role
@@ -81,7 +82,11 @@ class HMAnimationServer {
                 roleMapping[Roles.ANYONE.name] = Roles.ANYONE
 
                 config.accessManager { handler, ctx, permittedRoles ->
-                    // Check if current request is a Websocket upgrade request or not
+                    // Check if current request is a Websocket upgrade request or not and set the right response header
+                    if (ctx.req.getHeader("Upgrade") == "websocket" && ctx.req.getHeader("Sec-WebSocket-Protocol") != null) {
+                        ctx.header("Sec-WebSocket-Protocol", "v10.stomp")
+                    }
+                    // if the request is also to a Admin endpoint, check the token
                     if (ctx.req.getHeader("Upgrade") == "websocket" && !permittedRoles.contains(Roles.ANYONE)) {
                         val claimedRoleString = getTokenFromQueryPath(ctx)
                                 .flatMap(jwtProvider!!::validateToken)
@@ -237,15 +242,37 @@ class HMAnimationServer {
                             ApiBuilder.delete(PollController::delete, roles(Roles.ADMINISTRATOR))
                             ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
                         }
-                    }
 
-                    // Voting controller
-                    ApiBuilder.path(VotingController.PATH) {
-                        ApiBuilder.path(":idP/:idA") {
-                            ApiBuilder.patch(VotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
-                            ApiBuilder.ws({ ws -> ws.onMessage(VotingController::voteWs) }, roles(Roles.ANYONE))
+                        // Voting controller
+                        ApiBuilder.path(PollVotingController.PATH) {
+                            ApiBuilder.path(":idP/:idA") {
+                                ApiBuilder.patch(PollVotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                                ApiBuilder.ws({ ws -> ws.onMessage(PollVotingController::voteWs) }, roles(Roles.ANYONE))
+                            }
                         }
                     }
+
+                    // Open Poll controller
+                    ApiBuilder.path(OpenPollController.PATH) {
+                        ApiBuilder.post(OpenPollController::create, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.get(OpenPollController::readAll, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                        ApiBuilder.patch(OpenPollController::update, roles(Roles.ADMINISTRATOR))
+                        ApiBuilder.ws({ ws -> ws.onMessage(OpenPollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
+
+                        ApiBuilder.path(":id") {
+                            ApiBuilder.get(OpenPollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                            ApiBuilder.delete(OpenPollController::delete, roles(Roles.ADMINISTRATOR))
+                            ApiBuilder.ws({ ws -> ws.onMessage(OpenPollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
+                        }
+
+                        // Voting Controller
+                        ApiBuilder.path(OpenPollVotingController.PATH) {
+                            ApiBuilder.path(":idP") {
+                                ApiBuilder.patch(OpenPollVotingController::vote, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
+                            }
+                        }
+                    }
+
                 }
 
             }
