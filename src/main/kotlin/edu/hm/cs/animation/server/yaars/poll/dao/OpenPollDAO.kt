@@ -12,7 +12,7 @@ class OpenPollDAO {
      */
     fun create(poll: OpenQuestionPoll): OpenQuestionPoll {
         return PersistenceUtil.transaction {
-            for (elem in poll.answers) {
+            for (elem in poll.replies) {
                 elem.relatedPoll = poll
             }
             it.persist(poll)
@@ -48,12 +48,12 @@ class OpenPollDAO {
         PersistenceUtil.transaction {
             val updatedPoll = it.find(OpenQuestionPoll::class.java, poll.id)
             updatedPoll.active = poll.active
-            updatedPoll.answers = poll.answers
+            updatedPoll.replies = poll.replies
             updatedPoll.lecture = poll.lecture
             updatedPoll.question = poll.question
 
             // fixes related poll field
-            for (answer in updatedPoll.answers) {
+            for (answer in updatedPoll.replies) {
                 answer.relatedPoll = poll
             }
 
