@@ -52,13 +52,15 @@ class LectureDAO {
     fun getAllActiveForLectureId(id: Long): List<YaarsPoll> {
         val openPolls = PersistenceUtil.transaction {
             return@transaction it
-                    .createQuery("SELECT p from Poll p WHERE p.active = True AND p.lecture.id = $id", YaarsPoll::class.java)
+                    .createQuery("SELECT p from Poll p WHERE p.active = True AND p.lecture.id = $id",
+                            YaarsPoll::class.java)
                     .resultList!!
         }
         openPolls.addAll(
                 PersistenceUtil.transaction {
                     return@transaction it
-                            .createQuery("SELECT p from OpenQuestionPoll p WHERE p.active = True AND p.lecture.id = $id", YaarsPoll::class.java)
+                            .createQuery("SELECT p from OpenQuestionPoll p WHERE p.active = True AND p.lecture.id = $id"
+                                    , YaarsPoll::class.java)
                             .resultList!!
                 }
         )
