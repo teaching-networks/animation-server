@@ -7,7 +7,7 @@ package edu.hm.cs.animation.server.yaars.lecture.dao
 
 import edu.hm.cs.animation.server.util.PersistenceUtil
 import edu.hm.cs.animation.server.yaars.lecture.model.Lecture
-import edu.hm.cs.animation.server.yaars.poll.model.Poll
+import edu.hm.cs.animation.server.yaars.poll.model.YaarsPoll
 
 /**
  * A DAO which manages the Lecture Entity.
@@ -49,12 +49,20 @@ class LectureDAO {
      * Returns all active polls for a certain lecture id.
      * @param id of the lecture.
      */
-    fun getAllActiveForLectureId(id: Long): List<Poll> {
-        return PersistenceUtil.transaction {
+    fun getAllActiveForLectureId(id: Long): List<YaarsPoll> {
+        val openPolls = PersistenceUtil.transaction {
             return@transaction it
-                    .createQuery("SELECT p from Poll p WHERE p.active = True AND p.lecture.id = $id", Poll::class.java)
+                    .createQuery("SELECT p from Poll p WHERE p.active = True AND p.lecture.id = $id", YaarsPoll::class.java)
                     .resultList!!
         }
+        openPolls.addAll(
+                PersistenceUtil.transaction {
+                    return@transaction it
+                            .createQuery("SELECT p from OpenQuestionPoll p WHERE p.active = True AND p.lecture.id = $id", YaarsPoll::class.java)
+                            .resultList!!
+                }
+        )
+        return openPolls
     }
 
     /**
