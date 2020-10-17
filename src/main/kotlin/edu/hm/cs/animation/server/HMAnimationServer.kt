@@ -15,6 +15,7 @@ import edu.hm.cs.animation.server.security.AuthController
 import edu.hm.cs.animation.server.security.roles.Roles
 import edu.hm.cs.animation.server.user.UserController
 import edu.hm.cs.animation.server.user.model.User
+import edu.hm.cs.animation.server.util.PollCleanupUtil
 import edu.hm.cs.animation.server.util.cmdargs.CMDLineArgumentParser
 import edu.hm.cs.animation.server.util.file.FileWatcher
 import edu.hm.cs.animation.server.yaars.lecture.LectureController
@@ -155,7 +156,10 @@ class HMAnimationServer {
         }
 
         app.routes {
-            ApiBuilder.before("*") { ctx -> ctx.header("Access-Control-Allow-Credentials", "true") }
+            ApiBuilder.before("*") { ctx ->
+                ctx.header("Access-Control-Allow-Credentials", "true")
+                PollCleanupUtil.setOldPollsInactive(60)
+            }
             ApiBuilder.after {
                 it.contentType("application/json; charset=utf-8")
             }

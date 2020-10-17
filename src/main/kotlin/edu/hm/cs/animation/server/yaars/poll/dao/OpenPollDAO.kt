@@ -2,6 +2,7 @@ package edu.hm.cs.animation.server.yaars.poll.dao
 
 import edu.hm.cs.animation.server.util.PersistenceUtil
 import edu.hm.cs.animation.server.yaars.poll.model.OpenQuestionPoll
+import java.time.LocalDateTime
 
 
 class OpenPollDAO {
@@ -82,6 +83,12 @@ class OpenPollDAO {
         return PersistenceUtil.transaction {
             val poll = it.find(OpenQuestionPoll::class.java, id)
             poll.active = status
+
+            if (status) {
+                poll.timeStarted = LocalDateTime.now()
+            } else {
+                poll.timeStarted = null
+            }
 
             return@transaction it.merge(poll)
         }

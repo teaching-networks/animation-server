@@ -1,5 +1,7 @@
 # Changelog
 
+### 3.1.1
+- Added a timer that sets all polls that have been active for longer than 60 minutes to inactive
 
 ### 3.1.0
 - Added the open-question-poll functionality.
