@@ -247,6 +247,11 @@ class HMAnimationServer {
                             ApiBuilder.ws({ ws -> ws.onMessage(PollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
                         }
 
+                        // endpoint for the frontend to be informed about the polls current state
+                        ApiBuilder.path("updates/:id") {
+                            ApiBuilder.ws({ ws -> ws.onMessage(PollController::onFrontendMethodSubscribe) }, roles(Roles.ANYONE))
+                        }
+
                         // Voting controller
                         ApiBuilder.path(PollVotingController.PATH) {
                             ApiBuilder.path(":idP/:idA") {
@@ -267,6 +272,11 @@ class HMAnimationServer {
                             ApiBuilder.get(OpenPollController::read, roles(Roles.ANYONE, Roles.ADMINISTRATOR))
                             ApiBuilder.delete(OpenPollController::delete, roles(Roles.ADMINISTRATOR))
                             ApiBuilder.ws({ ws -> ws.onMessage(OpenPollController::onMessageSubscribe) }, roles(Roles.ADMINISTRATOR))
+                        }
+
+                        // endpoint for the frontend to be informed about the polls current state
+                        ApiBuilder.path("updates/:id") {
+                            ApiBuilder.ws({ ws -> ws.onMessage(OpenPollController::onFrontendMethodSubscribe) }, roles(Roles.ANYONE))
                         }
 
                         // Voting Controller

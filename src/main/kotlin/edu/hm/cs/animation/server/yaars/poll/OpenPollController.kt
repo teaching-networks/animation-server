@@ -9,6 +9,7 @@ import edu.hm.cs.animation.server.util.stomp.STOMPMethodVerificator.verifyForMet
 import edu.hm.cs.animation.server.util.stomp.STOMPParser
 import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPLectureSubscriptionManager
 import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPOpenPollSubscriptionManager
+import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPPollSubscriptionManager
 import edu.hm.cs.animation.server.yaars.poll.dao.OpenPollDAO
 import edu.hm.cs.animation.server.yaars.poll.model.OpenQuestionPoll
 import io.javalin.http.Context
@@ -78,9 +79,10 @@ object OpenPollController : CRUDController {
                 val id = ctx.pathParam("id").toLong()
                 val changedPoll = openPollDAO.setActive(id, true)
 
-                // Notify all clients (Lecture subscribers) about the new status and
-                // add the poll subscriber to the list.
+                // Notify all clients (Lecture subscribers and frontend subscribers) about the new status and
+                // add the poll subscriber to the list
                 STOMPLectureSubscriptionManager.notifyAboutChange(changedPoll)
+                STOMPOpenPollSubscriptionManager.notifyAboutChange(changedPoll)
                 STOMPOpenPollSubscriptionManager.addSubscriber(ctx, request, id)
             }
         } else {
@@ -89,9 +91,37 @@ object OpenPollController : CRUDController {
                 val id = ctx.pathParam("id").toLong()
                 val changedPoll = openPollDAO.setActive(id, false)
 
-                // Notify all clients (Lecture subscribers) about the new status and remove
-                // the poll subscriber to the list.
+                // Notify all clients (Lecture subscribers and frontend subscribers) about the new status and remove
+                // the poll subscriber to the list
                 STOMPLectureSubscriptionManager.notifyAboutChange(changedPoll)
+                STOMPOpenPollSubscriptionManager.notifyAboutChange(changedPoll)
+                STOMPOpenPollSubscriptionManager.removeAllSubscribersForId(id, request.header["id"]!!)
+            }
+        }
+    }
+
+    /**
+     * Does nearly the same as onMessageSubscribe but without setting the requested poll to active. This endpoint is
+     * just for a Frontend Client that only wants to be informed about the current state of the poll.
+     */
+    fun onFrontendMethodSubscribe(ctx: WsMessageContext) {
+        val clientRequest = STOMPParser.parseSTOMPRequestFromContext(ctx)
+
+        if (clientRequest.method == STOMPMethod.SUBSCRIBE) {
+            verifyForMethodOrNull(clientRequest, STOMPMethod.SUBSCRIBE, ctx)?.let { request ->
+                // insert client into list of subscribers
+                val id = ctx.pathParam("id").toLong()
+                // get the current poll status and send it to the client
+                val currentPoll = openPollDAO.find(id)
+
+                STOMPOpenPollSubscriptionManager.factorAndSendResponse(Triple(ctx, request, id), currentPoll)
+                STOMPOpenPollSubscriptionManager.addSubscriber(ctx, request, id)
+            }
+        } else {
+            verifyForMethodOrNull(clientRequest, STOMPMethod.UNSUBSCRIBE, ctx)?.let { request ->
+                // Set the status to inactive
+                val id = ctx.pathParam("id").toLong()
+
                 STOMPOpenPollSubscriptionManager.removeAllSubscribersForId(id, request.header["id"]!!)
             }
         }
