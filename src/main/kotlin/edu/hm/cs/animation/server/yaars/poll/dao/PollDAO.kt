@@ -7,6 +7,7 @@ package edu.hm.cs.animation.server.yaars.poll.dao
 
 import edu.hm.cs.animation.server.util.PersistenceUtil
 import edu.hm.cs.animation.server.yaars.poll.model.Poll
+import java.time.LocalDateTime
 
 /**
  * DAO which manages the Poll Entity.
@@ -88,6 +89,12 @@ class PollDAO {
         return PersistenceUtil.transaction {
             val poll = it.find(Poll::class.java, id)
             poll.active = status
+
+            if (status) {
+                poll.timeStarted = LocalDateTime.now()
+            } else {
+                poll.timeStarted = null
+            }
 
             return@transaction it.merge(poll)
         }

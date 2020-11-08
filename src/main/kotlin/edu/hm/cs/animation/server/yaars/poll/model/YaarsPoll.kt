@@ -1,6 +1,7 @@
 package edu.hm.cs.animation.server.yaars.poll.model
 
 import edu.hm.cs.animation.server.yaars.lecture.model.Lecture
+import java.time.LocalDateTime
 import javax.persistence.*
 
 /**
@@ -32,5 +33,8 @@ open class YaarsPoll(
          * Current state of the poll (active or inactive).
          */
         @Column(nullable = false)
-        var active: Boolean = false
+        var active: Boolean = false,
+
+        @Column(nullable = true)
+        var timeStarted: LocalDateTime? = null
 )

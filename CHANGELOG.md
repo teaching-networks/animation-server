@@ -1,5 +1,12 @@
 # Changelog
 
+### 3.1.2
+- Added the Levenshtein Calculator which calculates the "edit distance" between two words. This is used to group
+  misspelled words together, for example "Weihnachten" and "Weinachten".
+- Added two websocket endpoints for the frontend to receive updates about the poll status.  
+
+### 3.1.1
+- Added a timer that sets all polls that have been active for longer than 60 minutes to inactive
 
 ### 3.1.0
 - Added the open-question-poll functionality.
