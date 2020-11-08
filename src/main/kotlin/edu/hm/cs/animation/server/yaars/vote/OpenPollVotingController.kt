@@ -6,6 +6,7 @@ import edu.hm.cs.animation.server.yaars.poll.answer.dao.OpenAnswerDAO
 import edu.hm.cs.animation.server.yaars.poll.answer.model.OpenAnswer
 import edu.hm.cs.animation.server.yaars.poll.dao.OpenPollDAO
 import io.javalin.http.Context
+import kotlin.math.round
 
 /**
  * Manages voting for a specific answer of an OpenPoll.
@@ -37,7 +38,7 @@ object OpenPollVotingController {
         // is less than 1/5 of the length of the string -> in that case the two strings are viewed as equal and
         // the vote counts towards the string that's already in the database
         val alreadyVoted = poll.replies.filter { openAnswer ->
-            val threshold = 1.0 / 5.0 * openAnswer.text.toLowerCase().length.toDouble()
+            val threshold = round(1.0 / 5.0 * openAnswer.text.toLowerCase().length.toDouble())
             val levenshteinDistance = LevenshteinDistanceCalculator
                     .calculateSimilarity(text.toLowerCase(), openAnswer.text.toLowerCase())
 
