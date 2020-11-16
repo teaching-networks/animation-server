@@ -5,7 +5,9 @@ import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPOpenPollSubscrip
 import edu.hm.cs.animation.server.yaars.poll.answer.dao.OpenAnswerDAO
 import edu.hm.cs.animation.server.yaars.poll.answer.model.OpenAnswer
 import edu.hm.cs.animation.server.yaars.poll.dao.OpenPollDAO
+import edu.hm.cs.animation.server.yaars.poll.model.OpenQuestionPoll
 import io.javalin.http.Context
+import kotlin.math.round
 
 /**
  * Manages voting for a specific answer of an OpenPoll.
@@ -31,7 +33,10 @@ object OpenPollVotingController {
             return
         }
 
-        val text = ctx.body<Map<String, String>>()["text"] ?: error("No body with property text!!")
+        val text = ctx.body<Map<String, String>>()["text"] ?: run {
+            ctx.status(400)
+            error("No body with property text!!")
+        }
 
         // checks if this specific poll already has an answer with text = text or if the levenshtein distance
         // is less than 1/5 of the length of the string -> in that case the two strings are viewed as equal and
