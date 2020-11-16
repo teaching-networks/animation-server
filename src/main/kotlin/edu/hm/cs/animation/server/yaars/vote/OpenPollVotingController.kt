@@ -40,24 +40,27 @@ object OpenPollVotingController {
 
         // checks if this specific poll already has an answer with text = text or if the levenshtein distance
         // is less than 1/5 of the length of the string -> in that case the two strings are viewed as equal and
-        // the vote counts towards the string that's already in the database
-        val filter = { openAnswer: OpenAnswer ->
-            val threshold = round(1.0 / 5.0 * openAnswer.text.toLowerCase().length.toDouble())
+        // the vote counts towards the string that's already in the database. this is only done if the poll answers
+        // does not have multiple lines
+        val alreadyVoted = poll.replies.filter { openAnswer ->
+            val threshold = 1.0 / 5.0 * openAnswer.text.toLowerCase().length.toDouble()
             val levenshteinDistance = LevenshteinDistanceCalculator
                     .calculateSimilarity(text.toLowerCase(), openAnswer.text.toLowerCase())
 
-            openAnswer.text.toLowerCase() == text.toLowerCase() || levenshteinDistance <= threshold
-        }
+            (openAnswer.text.toLowerCase() == text.toLowerCase() || levenshteinDistance <= threshold)
 
-        // votes for the existent answer or creates a new answer
-        when (val possibleExistentAnswer = poll.replies.find(filter)) {
-            null -> {
-                val newAnswer = openAnswerDAO
-                        .create(OpenAnswer(text = text, timesMentioned = 1, answerId = 0))
-                poll.replies.add(newAnswer)
-                openPollDAO.update(poll)
-            }
-            else -> openAnswerDAO.vote(possibleExistentAnswer.answerId)
+        }.size == 1
+
+        // if the set contains such an answer we vote for it, otherwise a new answer is created and the poll is updated
+        if (alreadyVoted && !poll.isMultilineAnswer) {
+            val answer = poll.replies.filter { openAnswer ->
+                openAnswer.text.toLowerCase() == text.toLowerCase()
+            }[0].answerId
+            openAnswerDAO.vote(answer)
+        } else {
+            val newAnswer = openAnswerDAO.create(OpenAnswer(text = text, timesMentioned = 1, answerId = 0))
+            poll.replies.add(newAnswer)
+            openPollDAO.update(poll)
         }
         STOMPOpenPollSubscriptionManager.notifyAboutChange(openPollDAO.find(id))
     }
