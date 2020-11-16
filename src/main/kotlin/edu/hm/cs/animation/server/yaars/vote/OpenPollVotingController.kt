@@ -35,13 +35,15 @@ object OpenPollVotingController {
 
         // checks if this specific poll already has an answer with text = text or if the levenshtein distance
         // is less than 1/5 of the length of the string -> in that case the two strings are viewed as equal and
-        // the vote counts towards the string that's already in the database
+        // the vote counts towards the string that's already in the database. this is only done if the poll answers
+        // does not have multiple lines
         val alreadyVoted = poll.replies.filter { openAnswer ->
             val threshold = 1.0 / 5.0 * openAnswer.text.toLowerCase().length.toDouble()
             val levenshteinDistance = LevenshteinDistanceCalculator
                     .calculateSimilarity(text.toLowerCase(), openAnswer.text.toLowerCase())
 
-            openAnswer.text.toLowerCase() == text.toLowerCase() || levenshteinDistance <= threshold
+            (openAnswer.text.toLowerCase() == text.toLowerCase() || levenshteinDistance <= threshold) &&
+                    !poll.isMultilineAnswer
         }.size == 1
 
         // if the set contains such an answer we vote for it, otherwise a new answer is created and the poll is updated
