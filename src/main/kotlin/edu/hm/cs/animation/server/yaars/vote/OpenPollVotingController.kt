@@ -42,12 +42,12 @@ object OpenPollVotingController {
             val levenshteinDistance = LevenshteinDistanceCalculator
                     .calculateSimilarity(text.toLowerCase(), openAnswer.text.toLowerCase())
 
-            (openAnswer.text.toLowerCase() == text.toLowerCase() || levenshteinDistance <= threshold) &&
-                    !poll.isMultilineAnswer
+            (openAnswer.text.toLowerCase() == text.toLowerCase() || levenshteinDistance <= threshold)
+
         }.size == 1
 
         // if the set contains such an answer we vote for it, otherwise a new answer is created and the poll is updated
-        if (alreadyVoted) {
+        if (alreadyVoted && !poll.isMultilineAnswer) {
             val answer = poll.replies.filter { openAnswer ->
                 openAnswer.text.toLowerCase() == text.toLowerCase()
             }[0].answerId
