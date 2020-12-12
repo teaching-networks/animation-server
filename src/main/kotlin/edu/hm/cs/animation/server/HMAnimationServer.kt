@@ -42,7 +42,7 @@ import java.util.*
 
 class HMAnimationServer {
 
-    var jwtProvider: JWTProvider? = null
+    private var jwtProvider: JWTProvider? = null
 
     fun start(args: Array<String>) {
         ArgParser(args).parseInto(::CMDLineArgumentParser).run {
@@ -106,7 +106,8 @@ class HMAnimationServer {
                 }
             }
 
-            setupRoutes(app.start(), setupJWTProvider(jwtSalt))
+            setupJWTProvider(jwtSalt)
+            setupRoutes(app.start())
         }
     }
 
@@ -130,7 +131,7 @@ class HMAnimationServer {
         return sslContextFactory
     }
 
-    private fun setupJWTProvider(salt: String): JWTProvider {
+    private fun setupJWTProvider(salt: String) {
         val algorithm = Algorithm.HMAC256(salt)
 
         val generator = JWTGenerator { user: User, alg: Algorithm ->
@@ -145,14 +146,22 @@ class HMAnimationServer {
         val verifier = JWT.require(algorithm).build()
 
         this.jwtProvider = JWTProvider(algorithm, generator, verifier)
-        return this.jwtProvider!!
     }
 
-    private fun setupRoutes(app: Javalin, jwtProvider: JWTProvider) {
-        val decodeHandler = JavalinJWT.createHeaderDecodeHandler(jwtProvider)
+    private fun setupRoutes(app: Javalin) {
+        val decodeHandler = JavalinJWT.createHeaderDecodeHandler(this.jwtProvider)
         app.before(decodeHandler)
         app.wsBefore { ws ->
+            // send a stomp connect frame at the start
             ws.onConnect { ctx -> ctx.send("CONNECTED\r\nversion:1.0\r\n\r\n\u0000") }
+
+            // this is necessary as the ios client sends his stomp opening request as ws message
+            // and not a ws connect event -> if there is a possibility to avoid this, feel free
+            ws.onMessage { ctx ->
+                if (ctx.message().contains("CONNECT")) {
+                    ctx.send("CONNECTED\nversion:1.0\n\n\u0000")
+                }
+            }
         }
 
         app.routes {
@@ -166,7 +175,7 @@ class HMAnimationServer {
 
             // Authentication controller
             ApiBuilder.path(AuthController.PATH) {
-                ApiBuilder.get({ ctx -> AuthController.authenticate(ctx, jwtProvider) }, roles(Roles.ANYONE))
+                ApiBuilder.get({ ctx -> jwtProvider?.let { AuthController.authenticate(ctx, it) } }, roles(Roles.ANYONE))
             }
 
             ApiBuilder.path("api") {
@@ -286,9 +295,7 @@ class HMAnimationServer {
                             }
                         }
                     }
-
                 }
-
             }
         }
     }

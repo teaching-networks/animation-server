@@ -89,4 +89,16 @@ class LectureDAO {
             it.remove(removedLecture)
         }
     }
+
+    /**
+     * Returns whether a lecture with parameter name already exists in the database.
+     * @param name to check for.
+     */
+    fun existsWithName(name: String): Boolean {
+        return PersistenceUtil.transaction {
+            return@transaction it.
+                    createQuery("select 1 from Lecture where exists (select 1 from Lecture l where l.name = '$name')")
+                    .resultList != null;
+        }
+    }
 }
