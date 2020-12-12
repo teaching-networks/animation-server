@@ -23,6 +23,10 @@ object LectureController : CRUDController {
     override fun create(ctx: Context) {
         val lecture = ctx.bodyValidator<Lecture>().get()
 
+        if (lectureDAO.existsWithName(lecture.name)) {
+            ctx.status(409)
+            return
+        }
         ctx.json(lectureDAO.create(lecture))
     }
 
