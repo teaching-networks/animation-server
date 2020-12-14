@@ -98,7 +98,7 @@ class LectureDAO {
         return PersistenceUtil.transaction {
             return@transaction it.
                     createQuery("select 1 from Lecture where exists (select 1 from Lecture l where l.name = '$name')")
-                    .resultList != null;
+                    .resultList.size > 0
         }
     }
 }
