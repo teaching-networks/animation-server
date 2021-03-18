@@ -16,10 +16,11 @@ object PollCleanupUtil {
             val openPolls = it
                     .createQuery("SELECT op FROM OpenQuestionPoll op",
                             OpenQuestionPoll::class.java)
-                    .resultList!!
+                    .resultList ?: return@transaction
+
             for (openPoll in openPolls) {
                 openPoll.timeStarted?.let { timesStarted ->
-                    print(getDuration(now, timesStarted))
+
                     if (getDuration(now, timesStarted) >= minutesTillOld) {
                         openPoll.timeStarted = null
                         openPoll.active = false
@@ -32,7 +33,8 @@ object PollCleanupUtil {
             val polls = it
                     .createQuery("SELECT p FROM Poll p",
                             Poll::class.java)
-                    .resultList!!
+                    .resultList ?: return@transaction
+
             for (poll in polls) {
                 poll.timeStarted?.let { timeStarted ->
                     if (getDuration(now, timeStarted) >= minutesTillOld) {
