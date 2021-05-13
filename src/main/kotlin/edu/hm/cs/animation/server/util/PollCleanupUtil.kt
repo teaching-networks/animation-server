@@ -11,7 +11,7 @@ import java.time.temporal.ChronoUnit
 
 // TODO: The two methods would be cleaner and less repetitive with Generic
 // parameters (fun <T: Poll> checkForOpenPollWithSimilarName(newPoll: T))
-// but this would need a more thought through Poll Interface.
+// but this would need a more thought through Poll Interface than we currently have
 
 /**
  * Handles situations in which Polls needs to get closed because their either

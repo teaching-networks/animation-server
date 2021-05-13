@@ -491,7 +491,7 @@ style:
     includeLineWrapping: false
   ForbiddenComment:
     active: true
-    values: ['TODO:', 'FIXME:', 'STOPSHIP:']
+    values: ['FIXME:', 'STOPSHIP:']
     allowedPatterns: ''
   ForbiddenImport:
     active: false
@@ -521,7 +521,7 @@ style:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/*.Test.kt', '**/*.Spec.kt', '**/*.Spek.kt']
     # Also exclude all HTTP status codes that are used.
-    ignoreNumbers: ['-1', '0', '1', '2', '200', '404', '400', '401', '409', '500', '60', '5.0', '1.0']
+    ignoreNumbers: ['-1', '0', '1', '2', '200', '404', '400', '401', '409', '500', '60', '5.0', '1.0', '0.2']
     ignoreHashCodeFunction: true
     ignorePropertyDeclaration: false
     ignoreLocalVariableDeclaration: false
