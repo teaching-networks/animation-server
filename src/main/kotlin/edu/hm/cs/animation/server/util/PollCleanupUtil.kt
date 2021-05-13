@@ -5,13 +5,10 @@ import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPPollSubscription
 import edu.hm.cs.animation.server.yaars.poll.model.OpenQuestionPoll
 import edu.hm.cs.animation.server.yaars.poll.model.Poll
 import edu.hm.cs.animation.server.yaars.poll.model.YaarsPoll
+import java.lang.IllegalArgumentException
 import kotlin.math.abs
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-
-// TODO: The two methods would be cleaner and less repetitive with Generic
-// parameters (fun <T: Poll> checkForOpenPollWithSimilarName(newPoll: T))
-// but this would need a more thought through Poll Interface than we currently have
 
 /**
  * Handles situations in which Polls needs to get closed because their either
@@ -70,10 +67,9 @@ object PollCleanupUtil {
     fun checkForOpenPollWithSimilarName(newPoll: YaarsPoll) {
         val threshold = 0.2 * newPoll.question.length
         PersistenceUtil.transaction {
-            if (newPoll is OpenQuestionPoll) {
                 val openPolls = it
                         .createQuery("SELECT op FROM OpenQuestionPoll op",
-                                OpenQuestionPoll::class.java)
+                                newPoll.javaClass)
                         .resultList ?: return@transaction
 
                 val pollsToClose = openPolls.filter { poll ->
@@ -85,29 +81,13 @@ object PollCleanupUtil {
 
                 for (poll in pollsToClose) {
                     poll.active = false
-                    STOMPOpenPollSubscriptionManager.notifyAboutChange(poll)
+                    when (poll) {
+                        is Poll -> STOMPPollSubscriptionManager.notifyAboutChange(poll)
+                        is OpenQuestionPoll ->  STOMPOpenPollSubscriptionManager.notifyAboutChange(poll)
+                        else -> throw IllegalArgumentException("This type of poll is not known")
+                    }
                     it.merge(poll)
                 }
-            } else if (newPoll is Poll) {
-                val polls = it
-                        .createQuery("SELECT op FROM Poll p",
-                                Poll::class.java)
-                        .resultList ?: return@transaction
-
-                val pollsToClose = polls.filter { poll ->
-                    return@filter LevenshteinDistanceCalculator.calculateSimilarity(
-                            newPoll.question.toLowerCase(),
-                            poll.question.toLowerCase()
-                    ) > threshold
-                }
-
-                for (poll in pollsToClose) {
-                    poll.active = false
-                    STOMPPollSubscriptionManager.notifyAboutChange(poll)
-                    it.merge(poll)
-                }
-            }
-
         }
     }
 
