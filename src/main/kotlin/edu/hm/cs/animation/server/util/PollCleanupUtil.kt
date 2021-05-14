@@ -67,27 +67,27 @@ object PollCleanupUtil {
     fun checkForOpenPollWithSimilarName(newPoll: YaarsPoll) {
         val threshold = 0.2 * newPoll.question.length
         PersistenceUtil.transaction {
-                val openPolls = it
-                        .createQuery("SELECT op FROM OpenQuestionPoll op",
-                                newPoll.javaClass)
-                        .resultList ?: return@transaction
+            val openPolls = it
+                    .createQuery("SELECT op FROM OpenQuestionPoll op",
+                            newPoll.javaClass)
+                    .resultList ?: return@transaction
 
-                val pollsToClose = openPolls.filter { poll ->
-                    return@filter LevenshteinDistanceCalculator.calculateSimilarity(
-                            newPoll.question.toLowerCase(),
-                            poll.question.toLowerCase()
-                    ) > threshold
-                }
+            val pollsToClose = openPolls.filter { poll ->
+                return@filter LevenshteinDistanceCalculator.calculateSimilarity(
+                        newPoll.question.toLowerCase(),
+                        poll.question.toLowerCase()
+                ) > threshold && poll.lecture.id == newPoll.lecture.id
+            }
 
-                for (poll in pollsToClose) {
-                    poll.active = false
-                    when (poll) {
-                        is Poll -> STOMPPollSubscriptionManager.notifyAboutChange(poll)
-                        is OpenQuestionPoll ->  STOMPOpenPollSubscriptionManager.notifyAboutChange(poll)
-                        else -> throw IllegalArgumentException("This type of poll is not known")
-                    }
-                    it.merge(poll)
+            for (poll in pollsToClose) {
+                poll.active = false
+                when (poll) {
+                    is Poll -> STOMPPollSubscriptionManager.notifyAboutChange(poll)
+                    is OpenQuestionPoll -> STOMPOpenPollSubscriptionManager.notifyAboutChange(poll)
+                    else -> throw IllegalArgumentException("This type of poll is not known")
                 }
+                it.merge(poll)
+            }
         }
     }
 
