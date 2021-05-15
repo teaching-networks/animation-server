@@ -83,7 +83,7 @@ object PollCleanupUtil {
                         poll.question.toLowerCase()
                 ) <= threshold
                 return@filter (poll.question.equals(newPoll.question, ignoreCase = true) || isSimilarEnough)
-                        && poll.lecture.id == newPoll.lecture.id
+                        && poll.lecture.id == newPoll.lecture.id && poll.id != newPoll.id
             }
 
             for (poll in pollsToClose) {
