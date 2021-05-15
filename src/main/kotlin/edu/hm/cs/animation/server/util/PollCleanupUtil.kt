@@ -73,10 +73,12 @@ object PollCleanupUtil {
                     .resultList ?: return@transaction
 
             val pollsToClose = openPolls.filter { poll ->
-                return@filter LevenshteinDistanceCalculator.calculateSimilarity(
+                val isSimilarEnough = LevenshteinDistanceCalculator.calculateSimilarity(
                         newPoll.question.toLowerCase(),
                         poll.question.toLowerCase()
-                ) > threshold && poll.lecture.id == newPoll.lecture.id
+                ) <= threshold
+                return@filter (poll.question.equals(newPoll.question, ignoreCase = true) || isSimilarEnough)
+                        && poll.lecture.id == newPoll.lecture.id
             }
 
             for (poll in pollsToClose) {
