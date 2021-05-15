@@ -7,6 +7,7 @@ package edu.hm.cs.animation.server.yaars.poll
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import edu.hm.cs.animation.server.util.PollCleanupUtil
 import edu.hm.cs.animation.server.util.rest.CRUDController
 import edu.hm.cs.animation.server.util.stomp.STOMPFrame
 import edu.hm.cs.animation.server.util.stomp.STOMPFrameBuilder
@@ -86,6 +87,7 @@ object PollController : CRUDController {
                 // Set the status of the poll to active
                 val id = ctx.pathParam("id").toLong()
                 val changedPoll = pollDAO.setActive(id, true)
+                PollCleanupUtil.checkForOpenPollWithSimilarName(changedPoll)
 
                 // Notify all clients (Lecture subscribers and frontend subscribers) about the new status and
                 // add the poll subscriber to the list

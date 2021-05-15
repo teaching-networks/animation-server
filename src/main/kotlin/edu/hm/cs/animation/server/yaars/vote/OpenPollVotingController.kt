@@ -43,7 +43,7 @@ object OpenPollVotingController {
         // the vote counts towards the string that's already in the database. this is only done if the poll answers
         // does not have multiple lines
         val alreadyVoted = poll.replies.firstOrNull { openAnswer ->
-            val threshold = 1.0 / 5.0 * openAnswer.text.toLowerCase().length.toDouble()
+            val threshold = 0.2 * openAnswer.text.toLowerCase().length.toDouble()
             val levenshteinDistance = LevenshteinDistanceCalculator
                     .calculateSimilarity(text.toLowerCase(), openAnswer.text.toLowerCase())
 

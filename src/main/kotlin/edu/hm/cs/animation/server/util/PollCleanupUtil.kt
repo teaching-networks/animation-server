@@ -4,11 +4,21 @@ import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPOpenPollSubscrip
 import edu.hm.cs.animation.server.util.stomp.subscriptions.STOMPPollSubscriptionManager
 import edu.hm.cs.animation.server.yaars.poll.model.OpenQuestionPoll
 import edu.hm.cs.animation.server.yaars.poll.model.Poll
+import edu.hm.cs.animation.server.yaars.poll.model.YaarsPoll
+import java.lang.IllegalArgumentException
 import kotlin.math.abs
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
+/**
+ * Handles situations in which Polls needs to get closed because their either
+ * duplicates or already opened for too long.
+ */
 object PollCleanupUtil {
+    /**
+     * Queries the database for polls that are older that the given
+     * minutes and closes them.
+     */
     fun setOldPollsInactive(minutesTillOld: Long) {
         val now = LocalDateTime.now()
 
@@ -44,6 +54,39 @@ object PollCleanupUtil {
                         it.merge(poll)
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Checks for a poll that should be opened if there is a similar poll currently active with a similar name,
+     * This might be needed if the PowerPoint client crashes and does not recover the currently active poll,
+     * in that case a new poll with the same name gets opened. In order to reduce confusion in such cases, the old
+     * poll gets closed an the new one gets opened.
+     */
+    fun checkForOpenPollWithSimilarName(newPoll: YaarsPoll) {
+        val threshold = 0.2 * newPoll.question.length
+        PersistenceUtil.transaction {
+            val openPolls = it
+                    .createQuery("SELECT op FROM OpenQuestionPoll op",
+                            newPoll.javaClass)
+                    .resultList ?: return@transaction
+
+            val pollsToClose = openPolls.filter { poll ->
+                return@filter LevenshteinDistanceCalculator.calculateSimilarity(
+                        newPoll.question.toLowerCase(),
+                        poll.question.toLowerCase()
+                ) > threshold && poll.lecture.id == newPoll.lecture.id
+            }
+
+            for (poll in pollsToClose) {
+                poll.active = false
+                when (poll) {
+                    is Poll -> STOMPPollSubscriptionManager.notifyAboutChange(poll)
+                    is OpenQuestionPoll -> STOMPOpenPollSubscriptionManager.notifyAboutChange(poll)
+                    else -> throw IllegalArgumentException("This type of poll is not known")
+                }
+                it.merge(poll)
             }
         }
     }
