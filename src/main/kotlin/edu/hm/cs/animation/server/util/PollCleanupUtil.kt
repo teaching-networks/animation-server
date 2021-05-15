@@ -67,8 +67,13 @@ object PollCleanupUtil {
     fun checkForOpenPollWithSimilarName(newPoll: YaarsPoll) {
         val threshold = 0.2 * newPoll.question.length
         PersistenceUtil.transaction {
+            val table = when (newPoll) {
+                is OpenQuestionPoll -> "OpenQuestionPoll"
+                is Poll -> "Poll"
+                else -> throw IllegalArgumentException("This type of poll is not known")
+            }
             val openPolls = it
-                    .createQuery("SELECT op FROM OpenQuestionPoll op",
+                    .createQuery("SELECT op FROM $table op",
                             newPoll.javaClass)
                     .resultList ?: return@transaction
 
